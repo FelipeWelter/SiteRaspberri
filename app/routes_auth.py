@@ -13,7 +13,8 @@ def login():
         password = request.form.get("password", "")
         user = User.query.filter_by(username=username, active=True).first()
         if user and user.check_password(password):
-            login_user(user, remember=True)
+            remember = bool(request.form.get("remember"))
+            login_user(user, remember=remember)
             return redirect(url_for("main.dashboard"))
         flash("Usuário ou senha inválidos.", "danger")
     return render_template("login.html")
