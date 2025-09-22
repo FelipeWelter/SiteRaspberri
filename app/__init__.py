@@ -28,10 +28,12 @@ def create_app():
     # Blueprints
     from .routes_auth import bp as auth_bp
     from .routes_inventory import bp as inv_bp
+    from .routes_users import bp as admin_bp
     from .routes import bp as main_bp  # precisa ter / e /dashboard
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(inv_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(main_bp)
 
     return app

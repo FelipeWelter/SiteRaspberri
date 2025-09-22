@@ -1,7 +1,7 @@
 # app/forms.py (adicione/ajuste)
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, DecimalField, TextAreaField, SelectField, SubmitField
-from wtforms.validators import DataRequired, NumberRange, Optional, Length
+from wtforms import StringField, IntegerField, DecimalField, BooleanField, PasswordField, TextAreaField, SelectField, SubmitField
+from wtforms.validators import DataRequired, NumberRange, Optional, Length, EqualTo
 
 SITUACOES = [("OK","OK"), ("EM_USO","EM_USO"), ("INOPERANTE","INOPERANTE")]
 
@@ -21,3 +21,21 @@ class CL6Form(CL2Form):
     numero_patrimonio = StringField("Número de Patrimônio", validators=[Optional(), Length(max=120)])
     modelo = StringField("Modelo", validators=[Optional(), Length(max=120)])
     marca = StringField("Marca", validators=[Optional(), Length(max=120)])
+
+class UserCreateForm(FlaskForm):
+    username = StringField("Usuário", validators=[DataRequired(), Length(max=80)])
+    role = SelectField("Papel", choices=[("admin","admin"), ("user","user")], validators=[DataRequired()])
+    active = BooleanField("Ativo", default=True)
+    password = PasswordField("Senha", validators=[DataRequired(), Length(min=4, max=128)])
+    confirm = PasswordField("Confirmar senha", validators=[DataRequired(), EqualTo("password", message="Senhas diferentes")])
+    submit = SubmitField("Salvar")
+
+class UserEditForm(FlaskForm):
+    role = SelectField("Papel", choices=[("admin","admin"), ("user","user")], validators=[DataRequired()])
+    active = BooleanField("Ativo", default=True)
+    submit = SubmitField("Salvar")
+
+class UserPasswordForm(FlaskForm):
+    password = PasswordField("Nova senha", validators=[DataRequired(), Length(min=4, max=128)])
+    confirm = PasswordField("Confirmar senha", validators=[DataRequired(), EqualTo("password", message="Senhas diferentes")])
+    submit = SubmitField("Atualizar senha")

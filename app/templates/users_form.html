@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}{% endblock %}
+{% block content %}
+  <h3 class="mb-3">{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}</h3>
+  <form method="post" class="row g-3">
+    {{ form.csrf_token }}
+
+    {% if mode=='new' %}
+      <div class="col-md-6">
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
+      </div>
+      <div class="col-md-3">
+        {{ form.role.label(class="form-label") }}
+        {{ form.role(class="form-select") }}
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <div class="form-check">
+          {{ form.active(class="form-check-input") }}
+          <label class="form-check-label">Ativo</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
+      </div>
+      <div class="col-md-6">
+        {{ form.confirm.label(class="form-label") }}
+        {{ form.confirm(class="form-control") }}
+      </div>
+    {% else %}
+      <div class="col-md-4">
+        <label class="form-label">Usuário</label>
+        <input class="form-control" value="{{ user.username }}" disabled>
+      </div>
+      <div class="col-md-4">
+        {{ form.role.label(class="form-label") }}
+        {{ form.role(class="form-select") }}
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check">
+          {{ form.active(class="form-check-input") }}
+          <label class="form-check-label">Ativo</label>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="col-12">
+      {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">Voltar</a>
+    </div>
+  </form>
+{% endblock %}
