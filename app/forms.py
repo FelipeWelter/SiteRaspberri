@@ -6,22 +6,27 @@ from wtforms.validators import DataRequired, NumberRange, Optional, Length, Equa
 SITUACOES = [("OK","OK"), ("EM_USO","EM_USO"), ("INOPERANTE","INOPERANTE")]
 
 class CL2Form(FlaskForm):
-    item_id = StringField("ID", validators=[DataRequired(), Length(max=50)])
     nome = StringField("Nome", validators=[DataRequired(), Length(max=120)])
-    situacao = SelectField("Situação", choices=SITUACOES, validators=[DataRequired()])
-    qtd_prevista = IntegerField("Qtd Prevista", validators=[NumberRange(min=0)], default=0)
-    qtd_disp = IntegerField("Qtd Disponível", validators=[NumberRange(min=0)], default=0)
-    qtd_indisp = IntegerField("Qtd Indisponível", validators=[NumberRange(min=0)], default=0)
+    situacao = StringField("Situação", validators=[Optional(), Length(max=30)])
+    qtd_prevista = IntegerField("Quantidade Prevista", validators=[Optional(), NumberRange(min=0)])
+    qtd_disp = IntegerField("Quantidade Disponível", validators=[Optional(), NumberRange(min=0)])
+    qtd_indisp = IntegerField("Quantidade Indisponível", validators=[Optional(), NumberRange(min=0)])
     submit = SubmitField("Salvar")
 
-class CL6Form(CL2Form):
-    valor = DecimalField("Valor", places=2, rounding=None, validators=[Optional()])
-    observacao = TextAreaField("Observação/Defeito", validators=[Optional(), Length(max=2000)])
+class CL6Form(FlaskForm):
+    nome = StringField("Nome", validators=[DataRequired(), Length(max=120)])
+    situacao = StringField("Situação", validators=[Optional(), Length(max=30)])
+    qtd_prevista = IntegerField("Quantidade Prevista", validators=[Optional(), NumberRange(min=0)])
+    qtd_disp = IntegerField("Quantidade Disponível", validators=[Optional(), NumberRange(min=0)])
+    qtd_indisp = IntegerField("Quantidade Indisponível", validators=[Optional(), NumberRange(min=0)])
+    valor = DecimalField("Valor (R$)", places=2, rounding=None, validators=[Optional(), NumberRange(min=0)])
+    observacao = TextAreaField("Observação (defeito)", validators=[Optional(), Length(max=2000)])
     numero_serie = StringField("Número de Série", validators=[Optional(), Length(max=120)])
     numero_patrimonio = StringField("Número de Patrimônio", validators=[Optional(), Length(max=120)])
     modelo = StringField("Modelo", validators=[Optional(), Length(max=120)])
     marca = StringField("Marca", validators=[Optional(), Length(max=120)])
-
+    submit = SubmitField("Salvar")
+    
 class UserCreateForm(FlaskForm):
     username = StringField("Usuário", validators=[DataRequired(), Length(max=80)])
     role = SelectField("Papel", choices=[("admin","admin"), ("user","user")], validators=[DataRequired()])

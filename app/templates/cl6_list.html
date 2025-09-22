@@ -27,7 +27,7 @@
       <tbody>
         {% for it in items.items %}
         <tr>
-          <td>{{ it.item_id }}</td>
+          <td>{{ it.id }}</td>
           <td>{{ it.nome }}</td>
           <td>{{ it.situacao }}</td>
           <td>R$ {{ '%.2f'|format(it.valor or 0) }}</td>

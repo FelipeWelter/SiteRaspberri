@@ -1,22 +1,60 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL2{% endblock %}
+{% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL6{% endblock %}
 {% block content %}
   {% include "_tabs_inventory.html" %}
-<h2>{{ 'Novo CL6' if mode=='new' else 'Editar CL6' }}</h2>
-<form method="post">
-  {{ form.csrf_token }}
-  {{ form.item_id.label }} {{ form.item_id(size=20) }}<br>
-  {{ form.nome.label }} {{ form.nome(size=30) }}<br>
-  {{ form.situacao.label }} {{ form.situacao() }}<br>
-  {{ form.qtd_prevista.label }} {{ form.qtd_prevista(size=8) }}<br>
-  {{ form.qtd_disp.label }} {{ form.qtd_disp(size=8) }}<br>
-  {{ form.qtd_indisp.label }} {{ form.qtd_indisp(size=8) }}<br>
-  {{ form.valor.label }} {{ form.valor(size=10) }}<br>
-  {{ form.numero_serie.label }} {{ form.numero_serie(size=20) }}<br>
-  {{ form.numero_patrimonio.label }} {{ form.numero_patrimonio(size=20) }}<br>
-  {{ form.marca.label }} {{ form.marca(size=20) }}<br>
-  {{ form.modelo.label }} {{ form.modelo(size=20) }}<br>
-  {{ form.observacao.label }} {{ form.observacao(rows=4, cols=50) }}<br>
-  {{ form.submit() }}
-</form>
+  <h3 class="mb-3">{{ 'Novo' if mode=='new' else 'Editar' }} CL6</h3>
+  <form method="post" class="row g-3">
+    {{ form.csrf_token }}
+    <div class="col-md-5">
+      {{ form.nome.label(class="form-label") }}
+      {{ form.nome(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.situacao.label(class="form-label") }}
+      {{ form.situacao(class="form-control") }}
+    </div>
+
+    <div class="col-md-4">
+      {{ form.qtd_prevista.label(class="form-label") }}
+      {{ form.qtd_prevista(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.qtd_disp.label(class="form-label") }}
+      {{ form.qtd_disp(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.qtd_indisp.label(class="form-label") }}
+      {{ form.qtd_indisp(class="form-control") }}
+    </div>
+
+    <div class="col-md-4">
+      {{ form.valor.label(class="form-label") }}
+      {{ form.valor(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.numero_serie.label(class="form-label") }}
+      {{ form.numero_serie(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.numero_patrimonio.label(class="form-label") }}
+      {{ form.numero_patrimonio(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.marca.label(class="form-label") }}
+      {{ form.marca(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.modelo.label(class="form-label") }}
+      {{ form.modelo(class="form-control") }}
+    </div>
+    <div class="col-md-12">
+      {{ form.observacao.label(class="form-label") }}
+      {{ form.observacao(class="form-control", rows="3") }}
+    </div>
+
+    <div class="col-12">
+      {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-secondary" href="{{ url_for('inv.cl6_list') }}">Voltar</a>
+    </div>
+  </form>
 {% endblock %}

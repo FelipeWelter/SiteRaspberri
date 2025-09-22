@@ -1,16 +1,33 @@
 {% extends "base.html" %}
-{% block content %}
 {% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL2{% endblock %}
+{% block content %}
   {% include "_tabs_inventory.html" %}
-<h2>{{ 'Novo CL2' if mode=='new' else 'Editar CL2' }}</h2>
-<form method="post">
-  {{ form.csrf_token }}
-  {{ form.item_id.label }} {{ form.item_id(size=20) }}<br>
-  {{ form.nome.label }} {{ form.nome(size=30) }}<br>
-  {{ form.situacao.label }} {{ form.situacao() }}<br>
-  {{ form.qtd_prevista.label }} {{ form.qtd_prevista(size=8) }}<br>
-  {{ form.qtd_disp.label }} {{ form.qtd_disp(size=8) }}<br>
-  {{ form.qtd_indisp.label }} {{ form.qtd_indisp(size=8) }}<br>
-  {{ form.submit() }}
-</form>
+  <h3 class="mb-3">{{ 'Novo' if mode=='new' else 'Editar' }} CL2</h3>
+  <form method="post" class="row g-3">
+    {{ form.csrf_token }}
+    <div class="col-md-6">
+      {{ form.nome.label(class="form-label") }}
+      {{ form.nome(class="form-control") }}
+    </div>
+    <div class="col-md-6">
+      {{ form.situacao.label(class="form-label") }}
+      {{ form.situacao(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.qtd_prevista.label(class="form-label") }}
+      {{ form.qtd_prevista(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.qtd_disp.label(class="form-label") }}
+      {{ form.qtd_disp(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.qtd_indisp.label(class="form-label") }}
+      {{ form.qtd_indisp(class="form-control") }}
+    </div>
+    <div class="col-12">
+      {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-secondary" href="{{ url_for('inv.cl2_list') }}">Voltar</a>
+    </div>
+  </form>
 {% endblock %}
