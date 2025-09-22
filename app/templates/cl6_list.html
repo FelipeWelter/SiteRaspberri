@@ -30,7 +30,7 @@
           <td>{{ it.id }}</td>
           <td>{{ it.nome }}</td>
           <td>{{ it.situacao }}</td>
-          <td>R$ {{ '%.2f'|format(it.valor or 0) }}</td>
+          <td>R$ {{ '{:,.2f}'.format(it.valor or 0).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
           <td>{{ it.numero_serie or '-' }}</td>
           <td>{{ it.numero_patrimonio or '-' }}</td>
           <td>{{ (it.marca or '-') ~ '/' ~ (it.modelo or '-') }}</td>

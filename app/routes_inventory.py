@@ -79,13 +79,23 @@ def cl6_list():
 def cl6_new():
     form = CL6Form()
     if form.validate_on_submit():
+        raw_val = request.form.get("valor")
+        if raw_val:
+            raw_val = raw_val.replace(",", ".") #Aceitar ponto e virgula
+            try:
+                valor = float(raw_val)
+            except ValueError:
+                valor = 0
+        else:
+            valor = 0
+
         it = CL6(
             nome=form.nome.data,
             situacao=form.situacao.data or "OK",
             qtd_prevista=form.qtd_prevista.data or 0,
             qtd_disp=form.qtd_disp.data or 0,
             qtd_indisp=form.qtd_indisp.data or 0,
-            valor=form.valor.data or 0,
+            valor=valor,
             observacao=form.observacao.data,
             numero_serie=form.numero_serie.data,
             numero_patrimonio=form.numero_patrimonio.data,
@@ -103,6 +113,16 @@ def cl6_edit(id):
     it = CL6.query.get_or_404(id)
     form = CL6Form(obj=it)
     if form.validate_on_submit():
+        raw_val = request.form.get("valor")  # pega como string
+        if raw_val:
+            raw_val = raw_val.replace(",", ".")  # aceita vírgula também
+            try:
+                valor = float(raw_val)
+            except ValueError:
+                valor = 0
+        else:
+            valor = 0
+
         form.populate_obj(it)
         db.session.commit()
         flash("Item CL6 atualizado.", "success")

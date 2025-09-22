@@ -19,7 +19,7 @@ class CL6Form(FlaskForm):
     qtd_prevista = IntegerField("Quantidade Prevista", validators=[Optional(), NumberRange(min=0)])
     qtd_disp = IntegerField("Quantidade Disponível", validators=[Optional(), NumberRange(min=0)])
     qtd_indisp = IntegerField("Quantidade Indisponível", validators=[Optional(), NumberRange(min=0)])
-    valor = DecimalField("Valor (R$)", places=2, rounding=None, validators=[Optional(), NumberRange(min=0)])
+    valor = DecimalField("Valor (R$)", places=2, rounding=None, render_kw={"placeholder": "R$ 0,00"}, validators=[Optional(), NumberRange(min=0)])
     observacao = TextAreaField("Observação (defeito)", validators=[Optional(), Length(max=2000)])
     numero_serie = StringField("Número de Série", validators=[Optional(), Length(max=120)])
     numero_patrimonio = StringField("Número de Patrimônio", validators=[Optional(), Length(max=120)])
