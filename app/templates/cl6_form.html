@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ 'Novo CL6' if mode=='new' else 'Editar CL6' }}</h2>
+<form method="post">
+  {{ form.csrf_token }}
+  {{ form.item_id.label }} {{ form.item_id(size=20) }}<br>
+  {{ form.nome.label }} {{ form.nome(size=30) }}<br>
+  {{ form.situacao.label }} {{ form.situacao() }}<br>
+  {{ form.qtd_prevista.label }} {{ form.qtd_prevista(size=8) }}<br>
+  {{ form.qtd_disp.label }} {{ form.qtd_disp(size=8) }}<br>
+  {{ form.qtd_indisp.label }} {{ form.qtd_indisp(size=8) }}<br>
+  {{ form.valor.label }} {{ form.valor(size=10) }}<br>
+  {{ form.numero_serie.label }} {{ form.numero_serie(size=20) }}<br>
+  {{ form.numero_patrimonio.label }} {{ form.numero_patrimonio(size=20) }}<br>
+  {{ form.marca.label }} {{ form.marca(size=20) }}<br>
+  {{ form.modelo.label }} {{ form.modelo(size=20) }}<br>
+  {{ form.observacao.label }} {{ form.observacao(rows=4, cols=50) }}<br>
+  {{ form.submit() }}
+</form>
+{% endblock %}

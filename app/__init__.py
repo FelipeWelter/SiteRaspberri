@@ -1,34 +1,38 @@
 # app/__init__.py
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-
-db = SQLAlchemy()
-login_manager = LoginManager()
-login_manager.login_view = "auth.login"   # rota de login
+from .extensions import db, login_manager, migrate
 
 def create_app():
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object("config")
+    app = Flask(__name__)
+    app.config.from_object("config.Config")
 
+    # Inicializa extensões
     db.init_app(app)
     login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
+    migrate.init_app(app, db)
 
-    # Importa models para o db.create_all encontrar as tabelas
-    from . import models
-    from .routes import bp as main_bp
-    from .routes_auth import bp as auth_bp  # ver arquivo abaixo
+    # Importa models para o Alembic enxergar
+    from . import models  # noqa: F401
+    from .models import User  # precisamos do User para o loader
 
-    app.register_blueprint(main_bp)   # rotas públicas/privadas do app
-    app.register_blueprint(auth_bp)   # rotas de autenticação
+    # >>>>>>>>>>>>  USER LOADER (ESSENCIAL) <<<<<<<<<<<<<
+    @login_manager.user_loader
+    def load_user(user_id: str):
+        try:
+            return User.query.get(int(user_id))
+        except Exception:
+            return None
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-    with app.app_context():
-        db.create_all()
+    # Blueprints
+    from .routes_auth import bp as auth_bp
+    from .routes_inventory import bp as inv_bp
+    from .routes import bp as main_bp  # precisa ter / e /dashboard
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(inv_bp)
+    app.register_blueprint(main_bp)
 
     return app
 
-# >>>>> OBRIGATÓRIO: quem carrega o usuário da sessão <<<<<
-@login_manager.user_loader
-def load_user(user_id: str):
-    from .models import User
-    return User.query.get(int(user_id))
