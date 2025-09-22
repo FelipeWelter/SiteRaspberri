@@ -1,9 +1,34 @@
-<!doctype html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Dashboard</title></head>
-<body>
-  <h1>Bem-vindo ao sistema CL2/CL6</h1>
-  <p>Se você chegou aqui via /dashboard, já está logado.</p>
-  <p><a href="/logout">Sair</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">CL2</h5>
+          <p class="card-text">Controle de material CL2</p>
+          <a href="{{ url_for('inv.cl2_list') }}" class="btn btn-primary">Abrir CL2</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">CL6</h5>
+          <p class="card-text">Controle de material CL6</p>
+          <a href="{{ url_for('inv.cl6_list') }}" class="btn btn-primary">Abrir CL6</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4" id="usuarios">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Usuários</h5>
+          <p class="card-text">Gerenciar contas de acesso</p>
+          <!-- Trocar o href quando tiver a rota de usuários -->
+          <a href="{{ url_for('main.dashboard') }}#usuarios" class="btn btn-secondary disabled">Em breve</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
+{% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL2{% endblock %}
 {% block content %}
+  {% include "_tabs_inventory.html" %}
 <h2>{{ 'Novo CL6' if mode=='new' else 'Editar CL6' }}</h2>
 <form method="post">
   {{ form.csrf_token }}

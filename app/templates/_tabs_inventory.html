@@ -1,0 +1,14 @@
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inv.cl2_') %}active{% endif %}"
+       href="{{ url_for('inv.cl2_list') }}">CL2</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inv.cl6_') %}active{% endif %}"
+       href="{{ url_for('inv.cl6_list') }}">CL6</a>
+  </li>
+  <!-- Coloque aqui outra aba quando tiver tela de Usuários -->
+  <li class="nav-item">
+    <a class="nav-link disabled">Usuários</a>
+  </li>
+</ul>
