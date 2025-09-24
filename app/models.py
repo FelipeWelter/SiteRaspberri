@@ -42,3 +42,15 @@ class CL6(db.Model):
     marca = db.Column(db.String(120))
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class CL7(db.Model):
+    __tablename__ = "cl7"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    material = db.Column(db.String(120), nullable=False)
+    marca = db.Column(db.String(120))
+    modelo = db.Column(db.String(120))
+    numero_serie = db.Column(db.String(120))
+    situacao = db.Column(db.String(30), default="OK")
+    observacao = db.Column(db.Text)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

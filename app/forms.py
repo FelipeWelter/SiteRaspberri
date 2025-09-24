@@ -26,6 +26,23 @@ class CL6Form(FlaskForm):
     modelo = StringField("Modelo", validators=[Optional(), Length(max=120)])
     marca = StringField("Marca", validators=[Optional(), Length(max=120)])
     submit = SubmitField("Salvar")
+
+class CL7Form(FlaskForm):
+    material = StringField("Nome do Material", validators=[DataRequired(), Length(max=120)])
+    marca = StringField("Marca", validators=[Optional(), Length(max=120)])
+    modelo = StringField("Modelo", validators=[Optional(), Length(max=120)])
+    numero_serie = StringField("Número de Série", validators=[Optional(), Length(max=120)])
+    situacao = StringField("Situação", validators=[Optional(), Length(max=30)])
+    observacao = TextAreaField("Observação (defeito)", validators=[Optional(), Length(max=2000)])
+    submit = SubmitField("Salvar")
+
+
+
+
+
+
+
+
     
 class UserCreateForm(FlaskForm):
     username = StringField("Usuário", validators=[DataRequired(), Length(max=80)])

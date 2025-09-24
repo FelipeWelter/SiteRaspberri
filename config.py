@@ -18,3 +18,6 @@ class Config:
     # Em produção, com HTTPS, mude para True
     SESSION_COOKIE_SECURE = False
     REMEMBER_COOKIE_SECURE = False
+
+    APP_NAME = "SISTEMA DE CONTROLE DE MATERIAL"
+    APP_VERSION = "1.1"

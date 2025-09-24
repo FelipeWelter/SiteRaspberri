@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL7{% endblock %}
+{% block content %}
+  {% include "_tabs_inventory.html" %}
+  <h3 class="mb-3 text-white">{{ 'Novo' if mode=='new' else 'Editar' }} CL7</h3>
+  <form method="post" class="row g-3">
+    {{ form.csrf_token }}
+    <div class="col-md-5">
+      {{ form.material.label(class="form-label") }}
+      {{ form.material(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.marca.label(class="form-label") }}
+      {{ form.marca(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.modelo.label(class="form-label") }}
+      {{ form.modelo(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.numero_serie.label(class="form-label") }}
+      {{ form.numero_serie(class="form-control") }}
+    </div>
+    <div class="col-md-3">
+      {{ form.situacao.label(class="form-label") }}
+      {{ form.situacao(class="form-control") }}
+    </div>
+    <div class="col-md-12">
+      {{ form.observacao.label(class="form-label") }}
+      {{ form.observacao(class="form-control", rows="3") }}
+    </div>
+    <div class="col-12">
+      {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-secondary" href="{{ url_for('inv.cl7_list') }}">Voltar</a>
+    </div>
+  </form>
+{% endblock %}
