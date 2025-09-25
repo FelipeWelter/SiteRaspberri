@@ -3,8 +3,8 @@ import os
 from datetime import timedelta
 
 class Config:
-    # 🔑 Chave provisória (troque em produção)
-    SECRET_KEY = "teste123"
+    # 🔑 
+    SECRET_KEY = "22107dd3d6ca53feda551ef8e6bfbeb02b4681e975bae7daf52b65e2ed40386a"
 
     # Banco SQLite na pasta instance/
     SQLALCHEMY_DATABASE_URI = "sqlite:///site.db"
@@ -20,4 +20,4 @@ class Config:
     REMEMBER_COOKIE_SECURE = False
 
     APP_NAME = "SISTEMA DE CONTROLE DE MATERIAL"
-    APP_VERSION = "1.1"
+    APP_VERSION = "1.2.4"
