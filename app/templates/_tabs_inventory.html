@@ -12,7 +12,7 @@
      href="{{ url_for('inv.cl7_list') }}">CL7</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.') %}active{% endif %}"
-     href="{{ url_for('admin.users_list') }}">Usuários</a>
+  <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inv.VOLTAR') %}active{% endif %}"
+     href="{{ url_for('main.dashboard') }}">VOLTAR</a>
   </li>
 </ul>
