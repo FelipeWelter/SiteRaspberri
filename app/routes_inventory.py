@@ -1,22 +1,20 @@
 # app/routes_inventory.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, make_response
-from flask_login import login_required
 from sqlalchemy import func, or_, case
 from datetime import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-)
-from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.units import mm
 import io
 
+from .utils import class_required  # << agora vem do utils.py
 from .models import db, CL2, CL6, CL7
 from .forms import CL2Form, CL6Form, CL7Form
 
 bp = Blueprint("inv", __name__, url_prefix="/inv")
+
 # ------------------------
 # Helpers
 # ------------------------
@@ -29,11 +27,11 @@ def normalize_situacao(raw: str | None) -> str:
         return "INDISPONÍVEL"
     if s in {"cautelado", "emprestado"}:
         return "CAUTELADO"
-    return raw or "OK"
+    return (raw or "OK").upper()
 
 # -------- CL2 ----------
 @bp.get("/cl2")
-@login_required
+@class_required("CL2")
 def cl2_list():
     q = request.args.get("q", "").strip()
     page = request.args.get("page", 1, type=int)
@@ -44,9 +42,8 @@ def cl2_list():
     items = query.order_by(CL2.atualizado_em.desc()).paginate(page=page, per_page=10)
     return render_template("cl2_list.html", items=items, q=q)
 
-
 @bp.route("/cl2/new", methods=["GET", "POST"])
-@login_required
+@class_required("CL2")
 def cl2_new():
     form = CL2Form()
     if form.validate_on_submit():
@@ -63,9 +60,8 @@ def cl2_new():
         return redirect(url_for("inv.cl2_list"))
     return render_template("cl2_form.html", form=form, mode="new")
 
-
 @bp.route("/cl2/<int:id>/edit", methods=["GET", "POST"])
-@login_required
+@class_required("CL2")
 def cl2_edit(id):
     it = CL2.query.get_or_404(id)
     form = CL2Form(obj=it)
@@ -76,9 +72,8 @@ def cl2_edit(id):
         return redirect(url_for("inv.cl2_list"))
     return render_template("cl2_form.html", form=form, mode="edit", item=it)
 
-
 @bp.post("/cl2/<int:id>/delete")
-@login_required
+@class_required("CL2")
 def cl2_delete(id):
     it = CL2.query.get_or_404(id)
     db.session.delete(it)
@@ -86,10 +81,9 @@ def cl2_delete(id):
     flash("Item CL2 removido.", "warning")
     return redirect(url_for("inv.cl2_list"))
 
-
 # -------- CL6 ----------
 @bp.get("/cl6")
-@login_required
+@class_required("CL6")
 def cl6_list():
     q = request.args.get("q", "").strip()
     page = request.args.get("page", 1, type=int)
@@ -109,9 +103,8 @@ def cl6_list():
     items = query.order_by(CL6.atualizado_em.desc()).paginate(page=page, per_page=10)
     return render_template("cl6_list.html", items=items, q=q)
 
-
 @bp.route("/cl6/new", methods=["GET", "POST"])
-@login_required
+@class_required("CL6")
 def cl6_new():
     form = CL6Form()
     if form.validate_on_submit():
@@ -121,9 +114,9 @@ def cl6_new():
             try:
                 valor = float(raw_val)
             except ValueError:
-                valor = 0
+                valor = 0.0
         else:
-            valor = 0
+            valor = 0.0
 
         it = CL6(
             nome=form.nome.data,
@@ -144,34 +137,31 @@ def cl6_new():
         return redirect(url_for("inv.cl6_list"))
     return render_template("cl6_form.html", form=form, mode="new")
 
-
 @bp.route("/cl6/<int:id>/edit", methods=["GET", "POST"])
-@login_required
+@class_required("CL6")
 def cl6_edit(id):
     it = CL6.query.get_or_404(id)
     form = CL6Form(obj=it)
     if form.validate_on_submit():
-        # normaliza valor (vírgula/ponto)
         raw_val = request.form.get("valor")
         if raw_val:
             raw_val = raw_val.replace(",", ".")
             try:
                 valor = float(raw_val)
             except ValueError:
-                valor = 0
+                valor = 0.0
         else:
-            valor = 0
+            valor = 0.0
 
-        form.populate_obj(it)  # demais campos
-        it.valor = valor       # garante salvar o valor normalizado
+        form.populate_obj(it)
+        it.valor = valor
         db.session.commit()
         flash("Item CL6 atualizado.", "success")
         return redirect(url_for("inv.cl6_list"))
     return render_template("cl6_form.html", form=form, mode="edit", item=it)
 
-
 @bp.post("/cl6/<int:id>/delete")
-@login_required
+@class_required("CL6")
 def cl6_delete(id):
     it = CL6.query.get_or_404(id)
     db.session.delete(it)
@@ -179,10 +169,9 @@ def cl6_delete(id):
     flash("Item CL6 removido.", "warning")
     return redirect(url_for("inv.cl6_list"))
 
-
 # -------- CL7 ---------- (Classe VII para rádios)
 @bp.get("/cl7")
-@login_required
+@class_required("CL7")
 def cl7_list():
     q = request.args.get("q", "").strip()
     page = request.args.get("page", 1, type=int)
@@ -206,8 +195,7 @@ def cl7_list():
     query = CL7.query.filter(*filters)
     items = query.order_by(CL7.atualizado_em.desc()).paginate(page=page, per_page=10)
 
-    # resumo por situação (respeita filtros)
-    # usar UPPER para bater com valores salvos em maiúsculo e cobrir acentos
+    # resumo por situação (respeita filtros) — usa UPPER para cobrir acentos
     s = func.upper(func.trim(CL7.situacao))
 
     disp = func.coalesce(
@@ -243,10 +231,8 @@ def cl7_list():
 
     return render_template("cl7_list.html", items=items, q=q, sums=sums)
 
-
-
 @bp.route("/cl7/new", methods=["GET", "POST"])
-@login_required
+@class_required("CL7")
 def cl7_new():
     form = CL7Form()
     if form.validate_on_submit():
@@ -264,9 +250,8 @@ def cl7_new():
         return redirect(url_for("inv.cl7_list"))
     return render_template("cl7_form.html", form=form, mode="new")
 
-
 @bp.route("/cl7/<int:id>/edit", methods=["GET", "POST"])
-@login_required
+@class_required("CL7")
 def cl7_edit(id):
     it = CL7.query.get_or_404(id)
     form = CL7Form(obj=it)
@@ -282,9 +267,8 @@ def cl7_edit(id):
         return redirect(url_for("inv.cl7_list"))
     return render_template("cl7_form.html", form=form, mode="edit", item=it)
 
-
 @bp.post("/cl7/<int:id>/delete")
-@login_required
+@class_required("CL7")
 def cl7_delete(id):
     it = CL7.query.get_or_404(id)
     db.session.delete(it)
@@ -292,15 +276,14 @@ def cl7_delete(id):
     flash("Item CL7 removido.", "warning")
     return redirect(url_for("inv.cl7_list"))
 
-# módulo de impressão
-
+# -------- Impressão PDF CL7 --------
 @bp.get("/cl7/print-pdf")
-@login_required
+@class_required("CL7")
 def cl7_print_pdf():
     """Gera PDF com TABELA de CL7 + resumo (respeita filtro ?q=)."""
     q = request.args.get("q", "").strip()
 
-    # --------- filtros iguais aos da listagem ---------
+    # filtros iguais aos da listagem
     filters = []
     if q:
         like = f"%{q}%"
@@ -313,15 +296,14 @@ def cl7_print_pdf():
             CL7.observacao.ilike(like),
         ))
 
-    # --------- busca dos itens ---------
+    # busca dos itens
     items = (
         CL7.query.filter(*filters)
         .order_by(CL7.atualizado_em.desc())
         .all()
     )
 
-    # --------- agregação (mesma lógica da tela) ---------
-    from sqlalchemy import func, case
+    # agregação (mesma lógica da tela)
     s = func.upper(func.trim(CL7.situacao))
     disp = func.coalesce(func.sum(case((s.in_(["DISPONIVEL", "DISPONÍVEL", "OK", "LIVRE"]), 1), else_=0)), 0)
     indisp = func.coalesce(func.sum(case((s.in_(["INDISPONIVEL", "INDISPONÍVEL", "DEFEITO", "MANUTENCAO", "MANUTENÇÃO"]), 1), else_=0)), 0)
@@ -334,7 +316,7 @@ def cl7_print_pdf():
         total.label("total"),
     ).filter(*filters).one()
 
-    # --------- monta o PDF ---------
+    # monta o PDF
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -355,7 +337,6 @@ def cl7_print_pdf():
     Normal = styles["Normal"]
 
     story = []
-
     # Cabeçalho
     story.append(Paragraph("Resumo CL7 — Rádios", H1))
     cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
@@ -364,10 +345,8 @@ def cl7_print_pdf():
     story.append(Paragraph(cab, Normal))
     story.append(Spacer(1, 8))
 
-    # --------- Tabela de itens ---------
-    data = [
-        ["ID", "Material", "Marca", "Modelo", "Nº Série", "Situação", "Observação"]
-    ]
+    # Tabela de itens
+    data = [["ID", "Material", "Marca", "Modelo", "Nº Série", "Situação", "Observação"]]
     for it in items:
         data.append([
             it.id,
@@ -379,11 +358,7 @@ def cl7_print_pdf():
             it.observacao or "-",
         ])
 
-    # larguras: ajuste se quiser
-    col_widths = [
-        14*mm, 36*mm, 26*mm, 26*mm,
-        26*mm, 24*mm, 60*mm
-    ]
+    col_widths = [14*mm, 36*mm, 26*mm, 26*mm, 26*mm, 24*mm, 60*mm]
 
     tbl = Table(data, colWidths=col_widths, repeatRows=1)
     tbl.setStyle(TableStyle([
@@ -402,7 +377,7 @@ def cl7_print_pdf():
     story.append(tbl)
     story.append(Spacer(1, 12))
 
-    # --------- Resumo no final ---------
+    # Resumo final
     resumo_data = [
         ["Disponíveis", str(sums.disp)],
         ["Indisponíveis", str(sums.indisp)],
@@ -421,13 +396,11 @@ def cl7_print_pdf():
     ]))
     story.append(resumo_tbl)
 
-    # Build
     doc.build(story)
-    pdf = buffer.getvalue()
+    pdf = io.BytesIO(buffer.getvalue()).getvalue()
     buffer.close()
 
     resp = make_response(pdf)
     resp.headers["Content-Type"] = "application/pdf"
     resp.headers["Content-Disposition"] = "inline; filename=resumo_cl7.pdf"
     return resp
-

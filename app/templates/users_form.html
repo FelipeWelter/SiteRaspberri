@@ -1,53 +1,172 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}{% endblock %}
 {% block content %}
-  <h3 class="mb-3">{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}</h3>
-  <form method="post" class="row g-3">
-    {{ form.csrf_token }}
 
-    {% if mode=='new' %}
-      <div class="col-md-6">
-        {{ form.username.label(class="form-label") }}
-        {{ form.username(class="form-control") }}
+<style>
+  .card-section { border-radius: .75rem; }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(13,110,253,.15); color:#0d6efd;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:600;
+  }
+  .cls-chip { margin-right:.35rem; margin-bottom:.35rem; }
+</style>
+
+<div class="d-flex align-items-center gap-3 mb-3">
+  <div class="avatar" title="{{ form.username.data or (user.username if user else '') }}">
+    {{ (form.full_name.data or (user.full_name if user else form.username.data) or 'U')[:1]|upper }}
+  </div>
+  <div>
+    <h4 class="mb-0">{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}</h4>
+    <small class="text-muted">
+      {% if mode=='new' %}Preencha os dados abaixo para criar o usuário.{% else %}@{{ user.username }}{% endif %}
+    </small>
+  </div>
+</div>
+
+<form method="post" class="row g-4">
+  {{ form.csrf_token }}
+
+  <!-- Dados básicos -->
+  <div class="col-12">
+    <div class="card card-section shadow-sm">
+      <div class="card-header">
+        <strong>Informações básicas</strong>
       </div>
-      <div class="col-md-3">
-        {{ form.role.label(class="form-label") }}
-        {{ form.role(class="form-select") }}
-      </div>
-      <div class="col-md-3 d-flex align-items-end">
-        <div class="form-check">
-          {{ form.active(class="form-check-input") }}
-          <label class="form-check-label">Ativo</label>
+      <div class="card-body row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nome completo</label>
+          {{ form.full_name(class="form-control", placeholder="Ex.: Felipe Welter") if form.full_name is defined else '' }}
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Login</label>
+          {% if mode=='new' %}
+            {{ form.username(class="form-control", placeholder="ex: F.Welter") }}
+          {% else %}
+            <input class="form-control" value="{{ user.username }}" disabled>
+          {% endif %}
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Identidade</label>
+          {{ form.identity(class="form-control", placeholder="RG/Identidade") if form.identity is defined else '' }}
         </div>
       </div>
-      <div class="col-md-6">
-        {{ form.password.label(class="form-label") }}
-        {{ form.password(class="form-control") }}
-      </div>
-      <div class="col-md-6">
-        {{ form.confirm.label(class="form-label") }}
-        {{ form.confirm(class="form-control") }}
-      </div>
-    {% else %}
-      <div class="col-md-4">
-        <label class="form-label">Usuário</label>
-        <input class="form-control" value="{{ user.username }}" disabled>
-      </div>
-      <div class="col-md-4">
-        {{ form.role.label(class="form-label") }}
-        {{ form.role(class="form-select") }}
-      </div>
-      <div class="col-md-4 d-flex align-items-end">
-        <div class="form-check">
-          {{ form.active(class="form-check-input") }}
-          <label class="form-check-label">Ativo</label>
-        </div>
-      </div>
-    {% endif %}
-
-    <div class="col-12">
-      {{ form.submit(class="btn btn-primary") }}
-      <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">Voltar</a>
     </div>
-  </form>
+  </div>
+
+  <!-- Acesso e Perfil -->
+  <div class="col-12">
+    <div class="card card-section shadow-sm">
+      <div class="card-header">
+        <strong>Acesso e Perfil</strong>
+      </div>
+      <div class="card-body row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Perfil</label>
+          {{ form.role(class="form-select", id="role") }}
+          <small class="text-muted d-block mt-1">
+            <b>admin</b>: tudo + gerenciar usuários ·
+            <b>all</b>: todas as classes ·
+            <b>user</b>: apenas classes selecionadas
+          </small>
+        </div>
+
+        {% if form.active is defined %}
+        <div class="col-md-3 d-flex align-items-end">
+          <div class="form-check">
+            {{ form.active(class="form-check-input", id="active") }}
+            <label for="active" class="form-check-label">Ativo</label>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Bloco de classes (só aparece se role=user) -->
+        <div class="col-md-6" id="classes-box">
+          <label class="form-label">Classes com acesso</label>
+          <div class="form-control" style="height:auto;">
+            {% if form.classes is defined %}
+              {% for subfield in form.classes %}
+                <div class="form-check">
+                  {{ subfield(class_="form-check-input", id=subfield.id) }}
+                  <label for="{{ subfield.id }}" class="form-check-label">{{ subfield.label.text }}</label>
+                </div>
+              {% endfor %}
+            {% else %}
+              <span class="text-muted">Nenhuma classe configurada no formulário.</span>
+            {% endif %}
+          </div>
+          <small class="text-muted">Visível apenas quando o perfil for "Usuário".</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Senha -->
+  <div class="col-12">
+    <div class="card card-section shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Senha</strong>
+        {% if mode != 'new' %}
+          <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#pwdCollapse" aria-expanded="false" aria-controls="pwdCollapse">
+            Alterar senha
+          </button>
+        {% endif %}
+      </div>
+
+      <div class="card-body">
+        {% if mode=='new' %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Senha</label>
+              {{ form.password(class="form-control", placeholder="Mínimo 4 caracteres") if form.password is defined else '' }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Confirmar senha</label>
+              {{ form.confirm(class="form-control", placeholder="Repita a senha") if form.confirm is defined else '' }}
+            </div>
+          </div>
+        {% else %}
+          <div class="collapse" id="pwdCollapse">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nova senha</label>
+                {{ form.password(class="form-control", placeholder="Deixe em branco para manter") if form.password is defined else '' }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Confirmar nova senha</label>
+                {{ form.confirm(class="form-control", placeholder="Repita a nova senha") if form.confirm is defined else '' }}
+              </div>
+            </div>
+            <small class="text-muted d-block mt-2">Se não preencher, a senha atual será mantida.</small>
+          </div>
+          {% if not form.password is defined and not form.confirm is defined %}
+            <small class="text-muted">A troca de senha é feita em outra tela.</small>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="col-12 d-flex gap-2">
+    <button class="btn btn-primary">{{ 'Criar usuário' if mode=='new' else 'Salvar alterações' }}</button>
+    <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">Voltar</a>
+  </div>
+</form>
+
+<script>
+  function toggleClasses() {
+    const roleEl = document.getElementById('role');
+    if (!roleEl) return;
+    const box = document.getElementById('classes-box');
+    box.style.display = (roleEl.value === 'user') ? 'block' : 'none';
+  }
+  document.addEventListener('DOMContentLoaded', toggleClasses);
+  const roleSelect = document.getElementById('role');
+  if (roleSelect) roleSelect.addEventListener('change', toggleClasses);
+</script>
+
 {% endblock %}

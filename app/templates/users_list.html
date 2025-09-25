@@ -1,47 +1,159 @@
 {% extends "base.html" %}
 {% block title %}Usuários{% endblock %}
 {% block content %}
-  <h3 class="mb-3">Usuários</h3>
 
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-4">
-      <input class="form-control" name="q" placeholder="Buscar por usuário ou papel..." value="{{ q or '' }}">
+<style>
+  /* espaçamento visual entre badges das classes */
+  .cls-chip { margin-right: .25rem; margin-bottom: .25rem; }
+  /* avatar simples com iniciais */
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(13,110,253,.15); color:#0d6efd;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:600;
+  }
+  .table thead th { white-space: nowrap; }
+</style>
+
+<div class="card shadow-sm">
+  <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+      <h5 class="mb-0">Usuários</h5>
+      <!-- Resumo rápido -->
+      <div class="d-none d-md-flex align-items-center gap-2">
+        <span class="badge text-bg-secondary">
+          Total:
+          {{ users|length }}
+        </span>
+        <span class="badge text-bg-danger">
+          Admin:
+          {{ users|selectattr('role','equalto','admin')|list|length }}
+        </span>
+        <span class="badge text-bg-info">
+          Acesso total:
+          {{ users|selectattr('role','equalto','all')|list|length }}
+        </span>
+        <span class="badge text-bg-success">
+          Ativos:
+          {{ users|selectattr('active')|list|length }}
+        </span>
+      </div>
     </div>
-    <div class="col-md-auto">
-      <button class="btn btn-primary">Buscar</button>
+
+    <div class="mt-2 mt-md-0">
+      <a class="btn btn-success" href="{{ url_for('admin.users_new') }}">
+        + Novo Usuário
+      </a>
     </div>
-    <div class="col text-end">
-      <a class="btn btn-success" href="{{ url_for('admin.users_new') }}">+ Novo Usuário</a>
-    </div>
-  </form>
+  </div>
+
+  <div class="card-body border-bottom">
+    <form method="get" class="row g-2">
+      <div class="col-12 col-md-6 col-lg-4">
+        <input class="form-control" name="q" placeholder="Buscar por nome, login, identidade..." value="{{ q or '' }}">
+      </div>
+      <div class="col-12 col-md-auto">
+        <button class="btn btn-primary">Buscar</button>
+      </div>
+    </form>
+  </div>
 
   <div class="table-responsive">
-    <table class="table table-sm table-striped align-middle">
+    <table class="table table-sm table-striped align-middle mb-0">
       <thead class="table-dark">
         <tr>
-          <th>ID</th><th>Usuário</th><th>Papel</th><th>Ativo</th><th>Criado em</th><th style="width:220px;">Ações</th>
+          <th style="width:48px;">#</th>
+          <th>Usuário</th>
+          <th>Identidade</th>
+          <th>Perfil</th>
+          <th>Classes</th>
+          <th>Ativo</th>
+          <th>Criado em</th>
+          <th style="width:230px;">Ações</th>
         </tr>
       </thead>
       <tbody>
         {% for u in users %}
         <tr>
-          <td>{{ u.id }}</td>
-          <td>{{ u.username }}</td>
-          <td><span class="badge bg-{{ 'primary' if u.role=='admin' else 'secondary' }}">{{ u.role }}</span></td>
-          <td>{{ 'Sim' if u.active else 'Não' }}</td>
-          <td>{{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}</td>
+          <td class="text-muted">{{ u.id }}</td>
+
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="avatar" title="{{ u.username }}">
+                {{ (u.full_name or u.username)[:1] | upper }}
+              </div>
+              <div>
+                <div class="fw-semibold">{{ u.full_name or '-' }}</div>
+                <div class="small text-muted">@{{ u.username }}</div>
+              </div>
+            </div>
+          </td>
+
+          <td class="text-nowrap">{{ u.identity or '-' }}</td>
+
+          <td>
+            {% set role = u.role %}
+            {% if role == 'admin' %}
+              <span class="badge text-bg-danger">admin</span>
+            {% elif role == 'all' %}
+              <span class="badge text-bg-info">all</span>
+            {% else %}
+              <span class="badge text-bg-secondary">user</span>
+            {% endif %}
+          </td>
+
+          <td>
+            {% if u.role in ['admin','all'] %}
+              <span class="badge text-bg-dark cls-chip">(todas)</span>
+            {% else %}
+              {% set cl_str = (u.classes or '') %}
+              {% set cl_list = cl_str.split(',') if cl_str else [] %}
+              {% if cl_list %}
+                {% for c in cl_list %}
+                  <span class="badge text-bg-light border cls-chip">{{ c }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endif %}
+            {% endif %}
+          </td>
+
+          <td>
+            {% if u.active %}
+              <span class="badge text-bg-success">Sim</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Não</span>
+            {% endif %}
+          </td>
+
           <td class="text-nowrap">
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.users_edit', id=u.id) }}">Editar</a>
-            <a class="btn btn-sm btn-outline-warning" href="{{ url_for('admin.users_password', id=u.id) }}">Senha</a>
-            <form method="post" action="{{ url_for('admin.users_delete', id=u.id) }}" style="display:inline" onsubmit="return confirm('Confirmar exclusão?')">
-              <button class="btn btn-sm btn-outline-danger">Excluir</button>
-            </form>
+            {{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}
+          </td>
+
+          <td class="text-nowrap">
+            <div class="btn-group">
+              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.users_edit', id=u.id) }}" title="Editar">
+                Editar
+              </a>
+              <a class="btn btn-sm btn-outline-warning" href="{{ url_for('admin.users_password', id=u.id) }}" title="Alterar senha">
+                Senha
+              </a>
+              <form method="post" action="{{ url_for('admin.users_delete', id=u.id) }}" onsubmit="return confirm('Confirmar exclusão?')">
+                <button class="btn btn-sm btn-outline-danger" title="Excluir">Excluir</button>
+              </form>
+            </div>
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="6" class="text-center text-muted">Nenhum usuário</td></tr>
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">
+            Nenhum usuário encontrado
+          </td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+</div>
+
 {% endblock %}
