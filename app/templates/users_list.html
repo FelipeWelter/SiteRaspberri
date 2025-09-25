@@ -106,10 +106,9 @@
             {% if u.role in ['admin','all'] %}
               <span class="badge text-bg-dark cls-chip">(todas)</span>
             {% else %}
-              {% set cl_str = (u.classes or '') %}
-              {% set cl_list = cl_str.split(',') if cl_str else [] %}
-              {% if cl_list %}
-                {% for c in cl_list %}
+              {% set cls = u.classes | map(attribute='classe') | list %}
+              {% if cls %}
+                {% for c in cls %}
                   <span class="badge text-bg-light border cls-chip">{{ c }}</span>
                 {% endfor %}
               {% else %}
@@ -138,7 +137,7 @@
               <a class="btn btn-sm btn-outline-warning" href="{{ url_for('admin.users_password', id=u.id) }}" title="Alterar senha">
                 Senha
               </a>
-              <form method="post" action="{{ url_for('admin.users_delete', id=u.id) }}" onsubmit="return confirm('Confirmar exclusão?')">
+              <form method="post" action="{{ url_for('admin.users_delete', id=u.id) }}" onsubmit="return confirm('Confirmar exclusão?')" style="display:inline-block; margin:0;">
                 <button class="btn btn-sm btn-outline-danger" title="Excluir">Excluir</button>
               </form>
             </div>
