@@ -75,23 +75,6 @@ def users_new():
         return redirect(url_for("admin.users_list"))
     return render_template("users_form.html", form=form, mode="new")
 
-"""
-@bp.route("/users/<int:id>/edit", methods=["GET","POST"])
-@login_required
-@admin_required
-def users_edit(id):
-    u = User.query.get_or_404(id)
-    form = UserEditForm(obj=u)
-
-    if form.validate_on_submit():
-        u.role = form.role.data
-        u.active = form.active.data
-        db.session.commit()
-        flash("Usuário atualizado.", "success")
-        return redirect(url_for("admin.users_list"))
-    return render_template("users_form.html", form=form, mode="edit", user=u)
-
-"""
 @bp.route("/users/<int:id>/edit", methods=["GET", "POST"])
 @admin_required
 def users_edit(id):
