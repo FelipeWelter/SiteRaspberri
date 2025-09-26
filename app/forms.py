@@ -72,3 +72,12 @@ class UserPasswordForm(FlaskForm):
     password = PasswordField("Nova senha", validators=[DataRequired(), Length(min=4, max=128)])
     confirm = PasswordField("Confirmar senha", validators=[DataRequired(), EqualTo("password", message="Senhas diferentes")])
     submit = SubmitField("Atualizar senha")
+
+class RegisterForm(FlaskForm):
+    full_name = StringField("Nome completo", validators=[DataRequired(), Length(max=120)])
+    username = StringField("Login", validators=[DataRequired(), Length(max=80)])
+    identity = StringField("Identidade", validators=[Optional(), Length(max=80)])
+    password = PasswordField("Senha", validators=[DataRequired(), Length(min=4, max=128)])
+    confirm  = PasswordField("Confirmar senha", validators=[DataRequired(), EqualTo("password", "Senhas diferentes")])
+    accept = BooleanField("Aceito os termos de uso", validators=[DataRequired(message="Confirme os termos para continuar")])
+    submit = SubmitField("Criar conta")

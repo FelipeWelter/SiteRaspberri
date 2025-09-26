@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Criar Conta{% endblock %}
+{% block content %}
+
+<style>
+  .card-section { border-radius: .75rem; }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(13,110,253,.15); color:#0d6efd;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:600;
+  }
+  .tiny { font-size: .9rem; }
+  .muted { color: #6c757d; }
+</style>
+
+<div class="d-flex align-items-center gap-3 mb-3">
+  <div class="avatar" title="{{ (form.username.data or '') }}">
+    {{ (form.full_name.data or form.username.data or 'U')[:1]|upper }}
+  </div>
+  <div>
+    <h4 class="mb-0">Criar Conta</h4>
+    <small class="text-muted">Sua conta ficará pendente até aprovação do administrador.</small>
+  </div>
+</div>
+
+<form method="post" class="row g-4" novalidate>
+  {{ form.csrf_token if form.csrf_token is defined }}
+
+  <!-- Dados de identificação -->
+  <div class="col-12">
+    <div class="card card-section shadow-sm">
+      <div class="card-header">
+        <strong>Informações básicas</strong>
+      </div>
+      <div class="card-body row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nome completo</label>
+          {{ form.full_name(class="form-control", placeholder="Ex.: Felipe Welter") }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Login</label>
+          {{ form.username(class="form-control", placeholder="ex: F.Welter") }}
+          <small class="text-muted tiny">Será usado para entrar no sistema.</small>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Identidade</label>
+          {{ form.identity(class="form-control", placeholder="RG/Identidade (opcional)") }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Senha -->
+  <div class="col-12">
+    <div class="card card-section shadow-sm">
+      <div class="card-header">
+        <strong>Senha</strong>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Senha</label>
+            <div class="input-group">
+              {{ form.password(class="form-control", id="pwd", placeholder="Mínimo 4 caracteres") }}
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('pwd', this)">Mostrar</button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Confirmar senha</label>
+            <div class="input-group">
+              {{ form.confirm(class="form-control", id="pwd2", placeholder="Repita a senha") }}
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('pwd2', this)">Mostrar</button>
+            </div>
+          </div>
+        </div>
+        <small class="text-muted d-block mt-2">Guarde sua senha em local seguro.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Termos -->
+  <div class="col-12">
+    <div class="card card-section shadow-sm">
+      <div class="card-header">
+        <strong>Termos de uso</strong>
+      </div>
+      <div class="card-body">
+        <div class="form-check">
+          {{ form.accept(class="form-check-input", id="accept") }}
+          <label for="accept" class="form-check-label">
+            Declaro que as informações são verdadeiras e aceito os termos de uso.
+          </label>
+        </div>
+        <small class="text-muted d-block mt-1 tiny">A conta será criada como <b>usuário</b> e <b>inativa</b> até liberação do administrador.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="col-12 d-flex gap-2">
+    {{ form.submit(class="btn btn-primary btn-lg") }}
+    <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}">Voltar ao Login</a>
+  </div>
+</form>
+
+<script>
+  function togglePwd(id, btn){
+    const i = document.getElementById(id);
+    if(!i) return;
+    if(i.type === 'password'){ i.type = 'text'; btn.textContent = 'Ocultar'; }
+    else { i.type = 'password'; btn.textContent = 'Mostrar'; }
+  }
+
+  // bloqueia submit se termos não marcados (reforço visual; a validação do servidor continua valendo)
+  document.addEventListener('DOMContentLoaded', () => {
+    const accept = document.getElementById('accept');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const toggle = () => { if(submitBtn) submitBtn.disabled = !accept.checked; };
+    if(accept) { toggle(); accept.addEventListener('change', toggle); }
+  });
+</script>
+
+{% endblock %}

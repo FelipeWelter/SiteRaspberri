@@ -83,6 +83,12 @@
         <button class="btn btn-primary btn-lg" type="submit">Entrar</button>
       </div>
 
+      <div class="text-center mt-3">
+        <a class="small text-light" href="{{ url_for('auth.register') }}">
+        Não tem conta? Crie a sua
+        </a>
+      </div>
+
       <div class="mt-3 d-flex justify-content-between tiny text-muted-light">
         <span>© {{ config.get('APP_NAME', '4Sec') }}</span>
         <span>v{{ config.get('APP_VERSION', '1.2.4') }}</span>
