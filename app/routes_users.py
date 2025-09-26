@@ -79,11 +79,13 @@ def users_new():
 @admin_required
 def users_edit(id):
     u = User.query.get_or_404(id)
+
     form = UserForm(
         full_name=u.full_name,
         username=u.username,
         identity=u.identity,
         role=u.role,
+        active=u.active,
         classes=[c.classe for c in u.classes],
     )
     if form.validate_on_submit():
@@ -96,6 +98,7 @@ def users_edit(id):
         u.username  = form.username.data
         u.identity  = form.identity.data
         u.role      = form.role.data
+        u.active    = bool(form.active.data)
         if form.password.data:
             u.set_password(form.password.data)
 

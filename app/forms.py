@@ -55,6 +55,8 @@ class UserForm(FlaskForm):
         ("admin", "Administrador (acesso total)"),
     ], validators=[DataRequired()])
 
+    active = BooleanField("Ativo", default=True)
+
     # múltiplas classes (apenas se role=user)
     classes = SelectMultipleField(
         "Classes com acesso",
@@ -64,7 +66,7 @@ class UserForm(FlaskForm):
         validators=[Optional()],
     )
 
-    password = PasswordField("Senha", validators=[Optional(), Length(min=4, max=128)])
+    password = PasswordField("Senha", validators=[Optional(), Length(min=8, max=128)])
     confirm = PasswordField("Confirmar senha", validators=[Optional(), EqualTo("password", message="Senhas diferentes")])
     submit = SubmitField("Salvar")
 

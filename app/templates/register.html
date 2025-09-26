@@ -1,5 +1,4 @@
-
- <!-- {% extends "base.html" %} -->
+{% extends "base.html" %}
 {% block title %}Criar Conta{% endblock %}
 {% block content %}
 
@@ -63,7 +62,7 @@
           <div class="col-md-6">
             <label class="form-label">Senha</label>
             <div class="input-group">
-              {{ form.password(class="form-control", id="pwd", placeholder="Escolha uma senha forte") }}
+              {{ form.password(class="form-control", id="pwd", placeholder="No mínimo 8 caracteres") }}
               <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('pwd', this)">Mostrar</button>
             </div>
           </div>
