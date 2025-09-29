@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}CL7{% endblock %}
+{% block content %}
+<style>
+  .cl7-wrap{
+    position: relative; min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    display:flex; align-items:center; justify-content:center; padding: 28px 16px;
+  }
+  .cl7-wrap::before{ content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55)); }
+  .cl7-container{ position:relative; width:100%; max-width:900px; color:#fff; }
+  .card-glass{
+    background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.25); color:#fff;
+  }
+  .card-glass .card-body{ padding:22px; }
+  .btn-primary{ box-shadow:0 6px 18px rgba(13,110,253,.35); }
+</style>
+
+<div class="cl7-wrap">
+  <div class="cl7-container">
+    <h3 class="mb-3">CL7 — Selecione o Pelotão</h3>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card card-glass h-100">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">1º Pelotão</h5>
+            <p class="card-text flex-grow-1">Materiais de Informática</p>
+            <a class="btn btn-primary w-100" href="{{ url_for('inv.cl7_p1_list') }}">Abrir 1º Pelotão</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card card-glass h-100">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">2º Pelotão</h5>
+            <p class="card-text flex-grow-1">Materiais de Rádio</p>
+            <a class="btn btn-primary w-100" href="{{ url_for('inv.cl7_p2_list') }}">Abrir 2º Pelotão</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3">
+      <a class="btn btn-outline-light" href="{{ url_for('main.dashboard') }}">Voltar ao Início</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

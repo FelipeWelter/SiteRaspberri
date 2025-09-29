@@ -138,3 +138,4 @@ def users_delete(id):
     db.session.commit()
     flash("Usuário removido.", "warning")
     return redirect(url_for("admin.users_list"))
+

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} · CL7 · {{ pel_label }}{% endblock %}
+{% block content %}
+  <h3 class="mb-3">CL7 · {{ pel_label }} · {{ 'Novo' if mode=='new' else 'Editar' }}</h3>
+  <form method="post" class="row g-3">
+    {{ form.csrf_token }}
+
+    <div class="col-md-6">
+      {{ form.material.label(class="form-label") }}
+      {{ form.material(class="form-control", placeholder="Ex.: Rádio / Notebook / Impressora...") }}
+    </div>
+    <div class="col-md-3">
+      {{ form.marca.label(class="form-label") }}
+      {{ form.marca(class="form-control") }}
+    </div>
+    <div class="col-md-3">
+      {{ form.modelo.label(class="form-label") }}
+      {{ form.modelo(class="form-control") }}
+    </div>
+
+    <div class="col-md-4">
+      {{ form.numero_serie.label(class="form-label") }}
+      {{ form.numero_serie(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.situacao.label(class="form-label") }}
+      {{ form.situacao(class="form-control", placeholder="OK / CAUTELADO / INDISPONÍVEL") }}
+    </div>
+    <div class="col-12">
+      {{ form.observacao.label(class="form-label") }}
+      {{ form.observacao(class="form-control", rows="3") }}
+    </div>
+
+    <div class="col-12">
+      <button class="btn btn-primary">{{ 'Salvar' if mode=='new' else 'Atualizar' }}</button>
+      <a class="btn btn-secondary" href="{{ url_for(back_endpoint) }}">Voltar</a>
+    </div>
+  </form>
+{% endblock %}

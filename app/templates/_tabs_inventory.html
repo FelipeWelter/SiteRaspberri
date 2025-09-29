@@ -1,18 +1,42 @@
+{# app/templates/_tabs_inventory.html #}
+{% set ep = request.endpoint or '' %}
+
 <ul class="nav nav-tabs mb-3">
   <li class="nav-item">
-    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inv.cl2_') %}active{% endif %}"
-       href="{{ url_for('inv.cl2_list') }}">CL2</a>
+    <a class="nav-link {{ 'active' if ep[:8] == 'inv.cl2_' else '' }}"
+       href="{{ url_for('inv.cl2_list') }}">
+      CL2
+    </a>
   </li>
+
   <li class="nav-item">
-    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inv.cl6_') %}active{% endif %}"
-       href="{{ url_for('inv.cl6_list') }}">CL6</a>
+    <a class="nav-link {{ 'active' if ep[:8] == 'inv.cl6_' else '' }}"
+       href="{{ url_for('inv.cl6_list') }}">
+      CL6
+    </a>
   </li>
+
+  {# Hub da CL7 (escolha de pelotão) #}
   <li class="nav-item">
-  <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inv.cl7_') %}active{% endif %}"
-     href="{{ url_for('inv.cl7_list') }}">CL7</a>
+    <a class="nav-link {{ 'active' if ep == 'inv.cl7_list' else '' }}"
+       href="{{ url_for('inv.cl7_hub') }}">
+      CL7
+    </a>
   </li>
+
+  {# CL7 – 1º Pelotão #}
   <li class="nav-item">
-  <a class="nav-link {% if request.endpoint and request.endpoint.startswith('inv.VOLTAR') %}active{% endif %}"
-     href="{{ url_for('main.dashboard') }}">VOLTAR</a>
+    <a class="nav-link {{ 'active' if ep[:12] == 'inv.cl7_p1_' else '' }}"
+       href="{{ url_for('inv.cl7_p1_list') }}">
+      CL7 · 1º Pelotão
+    </a>
+  </li>
+
+  {# CL7 – 2º Pelotão #}
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if ep[:12] == 'inv.cl7_p2_' else '' }}"
+       href="{{ url_for('inv.cl7_p2_list') }}">
+      CL7 · 2º Pelotão
+    </a>
   </li>
 </ul>
