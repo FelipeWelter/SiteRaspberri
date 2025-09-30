@@ -72,20 +72,32 @@ class CL2(db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+# ATUALIZAÇÃO CLASSE 6 --------------
 class CL6(db.Model):
     __tablename__ = "cl6"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # auto
-    nome = db.Column(db.String(120), nullable=False)
-    situacao = db.Column(db.String(30), default="OK")
-    qtd_prevista = db.Column(db.Integer, default=0)
-    qtd_disp = db.Column(db.Integer, default=0)
-    qtd_indisp = db.Column(db.Integer, default=0)
-    valor = db.Column(db.Numeric(12,2), default=0)
-    observacao = db.Column(db.Text)
-    numero_serie = db.Column(db.String(120))
-    numero_patrimonio = db.Column(db.String(120))
-    modelo = db.Column(db.String(120))
+
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+
+    # Novos campos padronizados
+    situacao_patrimonial = db.Column(db.String(20), nullable=False, default="em carga") # em carga | fora de carga
+    codot_item_material = db.Column(db.String(120))
+    numero_patrimonio_material = db.Column(db.String(120))
+    ano_fabricacao = db.Column(db.Integer)
+    disponibilidade = db.Column(db.String(30)) # ex.: Disponível | Indisponível
+    categoria = db.Column(db.String(20)) # construcao | combate
+    valor_inclusao_carga = db.Column(db.Numeric(12, 2), default=0)
+    localizacao_atual = db.Column(db.String(120))
+
+
+    # Mantidos
     marca = db.Column(db.String(120))
+    modelo = db.Column(db.String(120))
+    numero_serie = db.Column(db.String(120))
+
+
+    # Metadados
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

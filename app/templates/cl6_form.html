@@ -1,3 +1,4 @@
+{# templates/cl6_form.html #}
 {% extends "base.html" %}
 {% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL6{% endblock %}
 {% block content %}
@@ -5,52 +6,26 @@
   <h3 class="mb-3">{{ 'Novo' if mode=='new' else 'Editar' }} CL6</h3>
   <form method="post" class="row g-3">
     {{ form.csrf_token }}
-    <div class="col-md-5">
-      {{ form.nome.label(class="form-label") }}
-      {{ form.nome(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.situacao.label(class="form-label") }}
-      {{ form.situacao(class="form-control") }}
-    </div>
 
-    <div class="col-md-4">
-      {{ form.qtd_prevista.label(class="form-label") }}
-      {{ form.qtd_prevista(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.qtd_disp.label(class="form-label") }}
-      {{ form.qtd_disp(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.qtd_indisp.label(class="form-label") }}
-      {{ form.qtd_indisp(class="form-control") }}
-    </div>
 
-    <div class="col-md-4">
-      {{ form.valor.label(class="form-label") }}
-      {{ form.valor(class="form-control", step="0.01") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.numero_serie.label(class="form-label") }}
-      {{ form.numero_serie(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.numero_patrimonio.label(class="form-label") }}
-      {{ form.numero_patrimonio(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.marca.label(class="form-label") }}
-      {{ form.marca(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.modelo.label(class="form-label") }}
-      {{ form.modelo(class="form-control") }}
-    </div>
-    <div class="col-md-12">
-      {{ form.observacao.label(class="form-label") }}
-      {{ form.observacao(class="form-control", rows="3") }}
-    </div>
+    <div class="col-md-3">{{ form.situacao_patrimonial.label(class="form-label") }}{{ form.situacao_patrimonial(class="form-select") }}</div>
+    <div class="col-md-3">{{ form.categoria.label(class="form-label") }}{{ form.categoria(class="form-select") }}</div>
+    <div class="col-md-3">{{ form.disponibilidade.label(class="form-label") }}{{ form.disponibilidade(class="form-control") }}</div>
+    <div class="col-md-3">{{ form.ano_fabricacao.label(class="form-label") }}{{ form.ano_fabricacao(class="form-control") }}</div>
+
+
+    <div class="col-md-4">{{ form.numero_patrimonio_material.label(class="form-label") }}{{ form.numero_patrimonio_material(class="form-control") }}</div>
+    <div class="col-md-4">{{ form.codot_item_material.label(class="form-label") }}{{ form.codot_item_material(class="form-control") }}</div>
+
+
+    <div class="col-md-4">{{ form.localizacao_atual.label(class="form-label") }}{{ form.localizacao_atual(class="form-control") }}</div>
+    <div class="col-md-4">{{ form.marca.label(class="form-label") }}{{ form.marca(class="form-control") }}</div>
+    <div class="col-md-4">{{ form.modelo.label(class="form-label") }}{{ form.modelo(class="form-control") }}</div>
+
+
+    <div class="col-md-4">{{ form.numero_serie.label(class="form-label") }}{{ form.numero_serie(class="form-control") }}</div>
+    <div class="col-md-4">{{ form.valor_inclusao_carga.label(class="form-label") }}{{ form.valor_inclusao_carga(class="form-control", step="0.01") }}</div>
+
 
     <div class="col-12">
       {{ form.submit(class="btn btn-primary") }}

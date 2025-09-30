@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, make_response
 from sqlalchemy import func, or_, case
 from datetime import datetime
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
@@ -30,7 +30,7 @@ def normalize_situacao(raw: str | None) -> str:
     return (raw or "OK").upper()
 
 # =====================================================================================
-# CL2 (inalterado)
+# CL2
 # =====================================================================================
 @bp.get("/cl2")
 @class_required("CL2")
@@ -156,24 +156,33 @@ def cl2_print_pdf():
 # =====================================================================================
 # CL6 (inalterado)
 # =====================================================================================
+# app/routes_inventory.py (trechos CL6)
+
+
 @bp.get("/cl6")
 @class_required("CL6")
 def cl6_list():
     q = request.args.get("q", "").strip()
     page = request.args.get("page", 1, type=int)
     query = CL6.query
+
     if q:
         like = f"%{q}%"
         query = query.filter(
             or_(
-                CL6.nome.ilike(like),
-                CL6.situacao.ilike(like),
-                CL6.numero_patrimonio.ilike(like),
-                CL6.numero_serie.ilike(like),
+                CL6.situacao_patrimonial.ilike(like),
+                CL6.codot_item_material.ilike(like),
+                CL6.numero_patrimonio_material.ilike(like),
+                CL6.localizacao_atual.ilike(like),
                 CL6.marca.ilike(like),
                 CL6.modelo.ilike(like),
+                CL6.numero_serie.ilike(like),
+                CL6.categoria.ilike(like),
+                CL6.disponibilidade.ilike(like),
             )
         )
+
+
     items = query.order_by(CL6.atualizado_em.desc()).paginate(page=page, per_page=10)
     return render_template("cl6_list.html", items=items, q=q)
 
@@ -182,28 +191,18 @@ def cl6_list():
 def cl6_new():
     form = CL6Form()
     if form.validate_on_submit():
-        raw_val = request.form.get("valor")
-        if raw_val:
-            raw_val = raw_val.replace(",", ".")  # aceita vírgula também
-            try:
-                valor = float(raw_val)
-            except ValueError:
-                valor = 0.0
-        else:
-            valor = 0.0
-
         it = CL6(
-            nome=form.nome.data,
-            situacao=form.situacao.data or "OK",
-            qtd_prevista=form.qtd_prevista.data or 0,
-            qtd_disp=form.qtd_disp.data or 0,
-            qtd_indisp=form.qtd_indisp.data or 0,
-            valor=valor,
-            observacao=form.observacao.data,
-            numero_serie=form.numero_serie.data,
-            numero_patrimonio=form.numero_patrimonio.data,
-            modelo=form.modelo.data,
+            situacao_patrimonial=form.situacao_patrimonial.data,
+            codot_item_material=form.codot_item_material.data,
+            numero_patrimonio_material=form.numero_patrimonio_material.data,
+            ano_fabricacao=form.ano_fabricacao.data,
+            disponibilidade=form.disponibilidade.data,
+            categoria=form.categoria.data,
+            valor_inclusao_carga=(form.valor_inclusao_carga.data or 0),
+            localizacao_atual=form.localizacao_atual.data,
             marca=form.marca.data,
+            modelo=form.modelo.data,
+            numero_serie=form.numero_serie.data,
         )
         db.session.add(it)
         db.session.commit()
@@ -217,18 +216,7 @@ def cl6_edit(id):
     it = CL6.query.get_or_404(id)
     form = CL6Form(obj=it)
     if form.validate_on_submit():
-        raw_val = request.form.get("valor")
-        if raw_val:
-            raw_val = raw_val.replace(",", ".")
-            try:
-                valor = float(raw_val)
-            except ValueError:
-                valor = 0.0
-        else:
-            valor = 0.0
-
         form.populate_obj(it)
-        it.valor = valor
         db.session.commit()
         flash("Item CL6 atualizado.", "success")
         return redirect(url_for("inv.cl6_list"))
@@ -243,57 +231,55 @@ def cl6_delete(id):
     flash("Item CL6 removido.", "warning")
     return redirect(url_for("inv.cl6_list"))
 
-# -------- Impressão PDF CL6 --------
 @bp.get("/cl6/print-pdf", endpoint="cl6_print_pdf")
 @class_required("CL6")
 def cl6_print_pdf():
-    """Gera PDF com listagem de CL6 (respeita ?q= e ?m=)."""
+    """Gera PDF com listagem de CL6 (respeita ?q=)."""
     q = request.args.get("q", "").strip()
-    m = request.args.get("m", "").strip()
 
     filters = []
     if q:
         like = f"%{q}%"
         filters.append(or_(
-            CL6.nome.ilike(like),
-            CL6.situacao.ilike(like),
-            CL6.numero_patrimonio.ilike(like),
-            CL6.numero_serie.ilike(like),
+            CL6.situacao_patrimonial.ilike(like),
+            CL6.codot_item_material.ilike(like),
+            CL6.numero_patrimonio_material.ilike(like),
+            CL6.localizacao_atual.ilike(like),
             CL6.marca.ilike(like),
             CL6.modelo.ilike(like),
+            CL6.numero_serie.ilike(like),
+            CL6.categoria.ilike(like),
+            CL6.disponibilidade.ilike(like),
         ))
-    if m:
-        filters.append(CL6.nome == m)
 
     rows = CL6.query.filter(*filters).order_by(CL6.atualizado_em.desc()).all()
 
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
-        buffer, pagesize=A4,
+        buffer, pagesize=landscape(A4),
         leftMargin=15*mm, rightMargin=15*mm,
         topMargin=15*mm, bottomMargin=15*mm,
-        title="Resumo CL6"
+        title="Resumo Materiais Classe VI"
     )
     styles = getSampleStyleSheet()
     H1 = ParagraphStyle("H1", parent=styles["Heading1"],
-                        fontName="Helvetica-Bold", fontSize=18, spaceAfter=6)
-    Normal = styles["Normal"]
+                        fontName="Helvetica-Bold", fontSize=16, spaceAfter=6)
+    Normal = ParagraphStyle("Normal", parent=styles["Normal"], fontSize=9, leading=12)
 
-    story = []
-    story.append(Paragraph("Resumo CL6", H1))
+    story = [Paragraph("Resumo CL6", H1)]
 
     cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
-    if q or m:
-        filtros_txt = []
-        if q: filtros_txt.append(f"Busca: <b>{q}</b>")
-        if m: filtros_txt.append(f"Material: <b>{m}</b>")
-        cab += " &nbsp;&nbsp;|&nbsp;&nbsp; " + " · ".join(filtros_txt)
+    if q:
+        cab += f" &nbsp;&nbsp;|&nbsp;&nbsp; Busca: <b>{q}</b>"
     story.append(Paragraph(cab, Normal))
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
 
-    # Tabela
-    data = [["ID", "Material", "Situação", "Patrimônio", "Nº Série",
-             "Marca", "Modelo", "Valor", "Prevista", "Disp.", "Indisp."]]
+    # Cabeçalho / Tabela
+    data = [[
+        "ID", "Situação", "CODOT", "Nº Patr. (mat)",
+        "Ano", "Disp.", "Categoria", "Valor (inc. carga)", "Localização",
+        "Marca", "Modelo", "Nº Série"
+    ]]
 
     def _fmt_valor(v):
         try:
@@ -301,40 +287,48 @@ def cl6_print_pdf():
         except (TypeError, ValueError):
             return "-"
 
-    for it in rows:
-        data.append([
-            it.id,
-            it.nome or "-",
-            it.situacao or "-",
-            it.numero_patrimonio or "-",
-            it.numero_serie or "-",
-            it.marca or "-",
-            it.modelo or "-",
-            _fmt_valor(it.valor),
-            it.qtd_prevista or 0,
-            it.qtd_disp or 0,
-            it.qtd_indisp or 0,
-        ])
+    if rows:
+        for it in rows:
+            data.append([
+                it.id,
+                it.situacao_patrimonial or "-",
+                it.codot_item_material or "-",
+                it.numero_patrimonio_material or "-",
+                it.ano_fabricacao or "-",
+                it.disponibilidade or "-",
+                it.categoria or "-",
+                _fmt_valor(it.valor_inclusao_carga),
+                it.localizacao_atual or "-",
+                it.marca or "-",
+                it.modelo or "-",
+                it.numero_serie or "-",
+            ])
+    else:
+        # Linha “vazia” amigável: evita parecer página em branco
+        data.append(["— Sem registros —"] + ["-"] * 12)
 
-    tbl = Table(
-        data,
-        colWidths=[10*mm, 36*mm, 22*mm, 24*mm, 26*mm, 22*mm, 24*mm, 18*mm, 16*mm, 14*mm, 16*mm],
-        repeatRows=1
-    )
+    # Larguras pensadas para caber em A4 com margens
+    col_widths = [
+        10*mm, 22*mm, 28*mm, 22*mm, 30*mm,
+        12*mm, 16*mm, 20*mm, 26*mm, 28*mm, 20*mm, 22*mm, 26*mm
+    ]
+
+    tbl = Table(data, colWidths=col_widths, repeatRows=1)
     tbl.setStyle(TableStyle([
         ("BACKGROUND", (0,0), (-1,0), colors.black),
         ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
         ("ALIGN", (0,0), (-1,0), "CENTER"),
         ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-        ("FONTSIZE", (0,0), (-1,0), 10),
+        ("FONTSIZE", (0,0), (-1,0), 9),
         ("GRID", (0,0), (-1,-1), 0.25, colors.grey),
         ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
-        ("FONTSIZE", (0,1), (-1,-1), 9),
+        ("FONTSIZE", (0,1), (-1,-1), 8),
         ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F7F7F7")]),
     ]))
-    story.append(tbl)
 
+    story.append(tbl)
     doc.build(story)
+
     pdf = buffer.getvalue()
     buffer.close()
 
@@ -342,7 +336,6 @@ def cl6_print_pdf():
     resp.headers["Content-Type"] = "application/pdf"
     resp.headers["Content-Disposition"] = "inline; filename=resumo_cl6.pdf"
     return resp
-
 
 
 # =====================================================================================

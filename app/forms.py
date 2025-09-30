@@ -17,19 +17,31 @@ class CL2Form(FlaskForm):
     qtd_indisp = IntegerField("Quantidade Indisponível", validators=[Optional(), NumberRange(min=0)])
     submit = SubmitField("Salvar")
 
-# ----------------- CL6 -----------------
+# ----------------- CL6 ----------------- NOVO
 class CL6Form(FlaskForm):
-    nome = StringField("Nome", validators=[DataRequired(), Length(max=120)])
-    situacao = StringField("Situação", validators=[Optional(), Length(max=30)])
-    qtd_prevista = IntegerField("Quantidade Prevista", validators=[Optional(), NumberRange(min=0)])
-    qtd_disp = IntegerField("Quantidade Disponível", validators=[Optional(), NumberRange(min=0)])
-    qtd_indisp = IntegerField("Quantidade Indisponível", validators=[Optional(), NumberRange(min=0)])
-    valor = DecimalField("Valor (R$)", places=2, validators=[Optional(), NumberRange(min=0)])
-    observacao = TextAreaField("Observação (defeito)", validators=[Optional(), Length(max=2000)])
-    numero_serie = StringField("Número de Série", validators=[Optional(), Length(max=120)])
-    numero_patrimonio = StringField("Número de Patrimônio", validators=[Optional(), Length(max=120)])
-    modelo = StringField("Modelo", validators=[Optional(), Length(max=120)])
+    situacao_patrimonial = SelectField(
+    "Situação patrimonial",
+    choices=[("em carga", "em carga"), ("fora de carga", "fora de carga")],
+    validators=[DataRequired()],
+    )
+    codot_item_material = StringField("CODOT Item material", validators=[Optional(), Length(max=120)])
+    numero_patrimonio_material = StringField("Número de patrimônio do material", validators=[Optional(), Length(max=120)])
+    ano_fabricacao = IntegerField("Ano de Fabricação", validators=[Optional(), NumberRange(min=1900, max=2100)])
+    disponibilidade = StringField("Disponibilidade", validators=[Optional(), Length(max=30)])
+    categoria = SelectField(
+    "Categoria",
+    choices=[("construcao", "construção"), ("combate", "combate")],
+    validators=[Optional()],
+    )
+    valor_inclusao_carga = DecimalField("Valor de inclusão em carga (R$)", places=2, validators=[Optional(), NumberRange(min=0)])
+    localizacao_atual = StringField("Localização atual", validators=[Optional(), Length(max=120)])
+
+
     marca = StringField("Marca", validators=[Optional(), Length(max=120)])
+    modelo = StringField("Modelo", validators=[Optional(), Length(max=120)])
+    numero_serie = StringField("Número de série", validators=[Optional(), Length(max=120)])
+
+
     submit = SubmitField("Salvar")
 
 # ----------------- CL7 -----------------

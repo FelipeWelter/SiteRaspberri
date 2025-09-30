@@ -13,10 +13,12 @@
       </a>
     </div>
   </div>
-  
+
   <form method="get" class="row g-2 mb-3">
-    <div class="col-md-5">
-      <input class="form-control" name="q" placeholder="Buscar Material/Nº Série/Nº Patrimônio/marca/modelo..." value="{{ q or '' }}">
+    <div class="col-md-6">
+      <input class="form-control" name="q"
+             placeholder="Buscar por situação, patrimônio, CODOT, localização, marca, modelo, série..."
+             value="{{ q or '' }}">
     </div>
     <div class="col-md-auto">
       <button class="btn btn-primary">Buscar</button>
@@ -27,19 +29,35 @@
     <table class="table table-sm table-striped align-middle">
       <thead class="table-dark">
         <tr>
-          <th>ID</th><th>Descrição do Material</th><th>Condição</th><th>Valor</th><th>Nº Série</th><th>Nº Patrimônio</th><th>Marca/Modelo</th><th style="width:150px;">Ações</th>
+          <th>ID</th>
+          <th>Situação</th>
+          <th>CODOT</th>
+          <th>Nº Patr. (mat)</th>
+          <th>Ano</th>
+          <th>Disp.</th>
+          <th>Categoria</th>
+          <th>Valor (inc. carga)</th>
+          <th>Localização</th>
+          <th>Marca/Modelo</th>
+          <th>Nº Série</th>
+          <th style="width:150px;">Ações</th>
         </tr>
       </thead>
       <tbody>
         {% for it in items.items %}
         <tr>
           <td>{{ it.id }}</td>
-          <td>{{ it.nome }}</td>
-          <td>{{ it.situacao }}</td>
-          <td>R$ {{ '{:,.2f}'.format(it.valor or 0).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
-          <td>{{ it.numero_serie or '-' }}</td>
+          <td>{{ it.situacao_patrimonial }}</td>
           <td>{{ it.numero_patrimonio or '-' }}</td>
+          <td>{{ it.codot_item_material or '-' }}</td>
+          <td>{{ it.numero_patrimonio_material or '-' }}</td>
+          <td>{{ it.ano_fabricacao or '-' }}</td>
+          <td>{{ it.disponibilidade or '-' }}</td>
+          <td>{{ it.categoria or '-' }}</td>
+          <td>R$ {{ '{:,.2f}'.format((it.valor_inclusao_carga or 0)).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
+          <td>{{ it.localizacao_atual or '-' }}</td>
           <td>{{ (it.marca or '-') ~ '/' ~ (it.modelo or '-') }}</td>
+          <td>{{ it.numero_serie or '-' }}</td>
           <td class="text-nowrap">
             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('inv.cl6_edit', id=it.id) }}">Editar</a>
             <form method="post" action="{{ url_for('inv.cl6_delete', id=it.id) }}" style="display:inline" onsubmit="return confirm('Confirmar exclusão?')">
@@ -48,12 +66,12 @@
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="8" class="text-center text-muted">Nenhum registro</td></tr>
+        <tr><td colspan="13" class="text-center text-muted">Nenhum registro</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-  
+
   <nav>
     <ul class="pagination">
       {% if items.has_prev %}
