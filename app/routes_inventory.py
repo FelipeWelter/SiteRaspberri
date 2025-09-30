@@ -83,6 +83,76 @@ def cl2_delete(id):
     flash("Item CL2 removido.", "warning")
     return redirect(url_for("inv.cl2_list"))
 
+# -------- Impressão PDF CL2 --------
+@bp.get("/cl2/print-pdf", endpoint="cl2_print_pdf")
+@class_required("CL2")
+def cl2_print_pdf():
+    """Gera PDF com listagem de CL2 (respeita ?q= e ?m=)."""
+    q = request.args.get("q", "").strip()
+    m = request.args.get("m", "").strip()
+
+    filters = []
+    if q:
+        like = f"%{q}%"
+        filters.append(or_(CL2.nome.ilike(like), CL2.situacao.ilike(like)))
+    if m:
+        filters.append(CL2.nome == m)
+
+    rows = CL2.query.filter(*filters).order_by(CL2.atualizado_em.desc()).all()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        leftMargin=15*mm, rightMargin=15*mm,
+        topMargin=15*mm, bottomMargin=15*mm,
+        title="Resumo CL2"
+    )
+    styles = getSampleStyleSheet()
+    H1 = ParagraphStyle("H1", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=18, spaceAfter=6)
+    Normal = styles["Normal"]
+
+    story = []
+    story.append(Paragraph("Resumo CL2", H1))
+    cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    if q or m:
+        filtros_txt = []
+        if q: filtros_txt.append(f"Busca: <b>{q}</b>")
+        if m: filtros_txt.append(f"Material: <b>{m}</b>")
+        cab += " &nbsp;&nbsp;|&nbsp;&nbsp; " + " · ".join(filtros_txt)
+    story.append(Paragraph(cab, Normal))
+    story.append(Spacer(1, 8))
+
+    data = [["ID", "Material", "Situação", "Prevista", "Disp.", "Indisp."]]
+    for it in rows:
+        data.append([
+            it.id, it.nome or "-", it.situacao or "-",
+            it.qtd_prevista or 0, it.qtd_disp or 0, it.qtd_indisp or 0
+        ])
+
+    tbl = Table(data, colWidths=[12*mm, 50*mm, 30*mm, 20*mm, 20*mm, 22*mm], repeatRows=1)
+    tbl.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.black),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
+        ("ALIGN", (0,0), (-1,0), "CENTER"),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("FONTSIZE", (0,0), (-1,0), 10),
+        ("GRID", (0,0), (-1,-1), 0.25, colors.grey),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("FONTSIZE", (0,1), (-1,-1), 9),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F7F7F7")]),
+    ]))
+    story.append(tbl)
+
+    doc.build(story)
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = "inline; filename=resumo_cl2.pdf"
+    return resp
+
+
 # =====================================================================================
 # CL6 (inalterado)
 # =====================================================================================
@@ -172,6 +242,108 @@ def cl6_delete(id):
     db.session.commit()
     flash("Item CL6 removido.", "warning")
     return redirect(url_for("inv.cl6_list"))
+
+# -------- Impressão PDF CL6 --------
+@bp.get("/cl6/print-pdf", endpoint="cl6_print_pdf")
+@class_required("CL6")
+def cl6_print_pdf():
+    """Gera PDF com listagem de CL6 (respeita ?q= e ?m=)."""
+    q = request.args.get("q", "").strip()
+    m = request.args.get("m", "").strip()
+
+    filters = []
+    if q:
+        like = f"%{q}%"
+        filters.append(or_(
+            CL6.nome.ilike(like),
+            CL6.situacao.ilike(like),
+            CL6.numero_patrimonio.ilike(like),
+            CL6.numero_serie.ilike(like),
+            CL6.marca.ilike(like),
+            CL6.modelo.ilike(like),
+        ))
+    if m:
+        filters.append(CL6.nome == m)
+
+    rows = CL6.query.filter(*filters).order_by(CL6.atualizado_em.desc()).all()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        leftMargin=15*mm, rightMargin=15*mm,
+        topMargin=15*mm, bottomMargin=15*mm,
+        title="Resumo CL6"
+    )
+    styles = getSampleStyleSheet()
+    H1 = ParagraphStyle("H1", parent=styles["Heading1"],
+                        fontName="Helvetica-Bold", fontSize=18, spaceAfter=6)
+    Normal = styles["Normal"]
+
+    story = []
+    story.append(Paragraph("Resumo CL6", H1))
+
+    cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    if q or m:
+        filtros_txt = []
+        if q: filtros_txt.append(f"Busca: <b>{q}</b>")
+        if m: filtros_txt.append(f"Material: <b>{m}</b>")
+        cab += " &nbsp;&nbsp;|&nbsp;&nbsp; " + " · ".join(filtros_txt)
+    story.append(Paragraph(cab, Normal))
+    story.append(Spacer(1, 8))
+
+    # Tabela
+    data = [["ID", "Material", "Situação", "Patrimônio", "Nº Série",
+             "Marca", "Modelo", "Valor", "Prevista", "Disp.", "Indisp."]]
+
+    def _fmt_valor(v):
+        try:
+            return f"R$ {float(v):.2f}"
+        except (TypeError, ValueError):
+            return "-"
+
+    for it in rows:
+        data.append([
+            it.id,
+            it.nome or "-",
+            it.situacao or "-",
+            it.numero_patrimonio or "-",
+            it.numero_serie or "-",
+            it.marca or "-",
+            it.modelo or "-",
+            _fmt_valor(it.valor),
+            it.qtd_prevista or 0,
+            it.qtd_disp or 0,
+            it.qtd_indisp or 0,
+        ])
+
+    tbl = Table(
+        data,
+        colWidths=[10*mm, 36*mm, 22*mm, 24*mm, 26*mm, 22*mm, 24*mm, 18*mm, 16*mm, 14*mm, 16*mm],
+        repeatRows=1
+    )
+    tbl.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.black),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
+        ("ALIGN", (0,0), (-1,0), "CENTER"),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("FONTSIZE", (0,0), (-1,0), 10),
+        ("GRID", (0,0), (-1,-1), 0.25, colors.grey),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("FONTSIZE", (0,1), (-1,-1), 9),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F7F7F7")]),
+    ]))
+    story.append(tbl)
+
+    doc.build(story)
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = "inline; filename=resumo_cl6.pdf"
+    return resp
+
+
 
 # =====================================================================================
 # CL7 — HUB + páginas separadas por Pelotão (NOVO) — sem mexer no fluxo de CL2/CL6

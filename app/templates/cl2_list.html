@@ -3,10 +3,18 @@
 {% block content %}
   {% include "_tabs_inventory.html" %}
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
+ <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="m-0">Materiais CL2</h3>
-    <a class="btn btn-success" href="{{ url_for('inv.cl2_new') }}">+ Novo</a>
+    <div class="btn-group">
+      <a class="btn btn-success" href="{{ url_for('inv.cl2_new') }}">+ Novo</a>
+      <a class="btn btn-outline-secondary"
+      href="{{ url_for('inv.cl2_print_pdf', q=(q if q else None)) }}">
+      🖨️ Imprimir CL2 (PDF)
+      </a>
+    </div>
   </div>
+
+
 
   <form method="get" class="row g-2 mb-3">
     <div class="col-md-4">
