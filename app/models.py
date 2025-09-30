@@ -110,6 +110,6 @@ class CL7(db.Model):
     numero_serie = db.Column(db.String(120))
     situacao = db.Column(db.String(30), default="OK")
     observacao = db.Column(db.Text)
-    pelotao = db.Column(db.String(20), nullable=False, index=True, default="1º PELOTAO") #1 PEL
+    pelotao = db.Column(db.String(20), nullable=True, index=True, default="1º PELOTAO") #1 PEL
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
