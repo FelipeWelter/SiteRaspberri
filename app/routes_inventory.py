@@ -20,10 +20,10 @@ bp = Blueprint("inv", __name__, url_prefix="/inv")
 # ------------------------
 def normalize_situacao(raw: str | None) -> str:
     """Normaliza texto de situação para valores canônicos (salva em maiúsculo)."""
-    s = (raw or "OK").strip().lower()
-    if s in {"ok", "livre", "disponivel", "disponível"}:
+    s = (raw or "ok").strip().lower()
+    if s in {"ok", "livre", "disponivel", "disponível", "s/a"}:
         return "DISPONÍVEL"
-    if s in {"defeito", "manutencao", "manutenção", "indisponivel", "indisponível"}:
+    if s in {"defeito", "manutencao", "manutenção", "indisponivel", "indisponível", "baixado", "bxd"}:
         return "INDISPONÍVEL"
     if s in {"cautelado", "emprestado"}:
         return "CAUTELADO"
@@ -169,7 +169,7 @@ def cl2_print_pdf():
     )
 
     story = []
-    story.append(Paragraph("Resumo CL2", H1))
+    story.append(Paragraph("Relação Material Classe II", H1))
     cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
     if q or m:
         filtros_txt = []
@@ -316,92 +316,125 @@ def cl6_print_pdf():
 
     rows = CL6.query.filter(*filters).order_by(CL6.atualizado_em.desc()).all()
 
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buffer, pagesize=landscape(A4),
-        leftMargin=15*mm, rightMargin=15*mm,
-        topMargin=15*mm, bottomMargin=15*mm,
-        title="Resumo Materiais Classe VI"
-    )
-    styles = getSampleStyleSheet()
-    H1 = ParagraphStyle("H1", parent=styles["Heading1"],
-                        fontName="Helvetica-Bold", fontSize=16, spaceAfter=6)
-    Normal = ParagraphStyle("Normal", parent=styles["Normal"], fontSize=9, leading=12)
-
-    #Estiilo para células com quebra de linha
-    CellStyle = ParagraphStyle(
-        name="CellStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=8,
-        leading=10,
-        wordWrap="CJK" # habilita quebra automática
-    )
-
-    story = [Paragraph("Resumo CL6", H1)]
-
-    cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
-
-    if q:
-        cab += f" &nbsp;&nbsp;|&nbsp;&nbsp; Busca: <b>{q}</b>"
-    story.append(Paragraph(cab, Normal))
-    story.append(Spacer(1, 6))
-
-    # Cabeçalho / Tabela
-    data = [[
-        "ID", "Situação", "CODOT", "Nº Patr. (mat)",
-        "Ano", "Disp.", "Categoria", "Valor (inc. carga)", "Localização",
-        "Marca", "Modelo", "Nº Série"
-    ]]
-
-    def _fmt_valor(v):
+    # ===== Helpers =====
+    def br_moeda(v):
         try:
-            return f"R$ {float(v):.2f}"
+            n = float(v)
         except (TypeError, ValueError):
             return "-"
+        # Formata estilo pt-BR sem depender de locale do SO
+        s = f"{n:,.2f}"
+        return "R$ " + s.replace(",", "X").replace(".", ",").replace("X", ".")
+
+    total_itens = len(rows)
+    soma_valores = sum(float(getattr(r, "valor_inclusao_carga") or 0) for r in rows)
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        leftMargin=12*mm, rightMargin=12*mm,
+        topMargin=14*mm, bottomMargin=14*mm,
+        title="Resumo Materiais Classe VI",
+    )
+
+    styles = getSampleStyleSheet()
+    H1 = ParagraphStyle("H1", parent=styles["Heading1"],
+                        fontName="Helvetica-Bold", fontSize=16, spaceAfter=4)
+    Small = ParagraphStyle("Small", parent=styles["Normal"], fontSize=8, leading=10)
+    Normal = ParagraphStyle("Normal9", parent=styles["Normal"], fontSize=9, leading=12)
+    Cell = ParagraphStyle("Cell", parent=styles["Normal"], fontName="Helvetica",
+                          fontSize=8, leading=10, wordWrap="CJK")
+
+    story = []
+    story.append(Paragraph("Relação Material Classe VI", H1))
+
+    cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    if q:
+        cab += f" &nbsp;&nbsp;|&nbsp;&nbsp; Busca: <b>{q}</b>"
+    story.append(Paragraph(cab, Small))
+    story.append(Spacer(1, 4))
+
+    # Resumo
+    resumo = f"Itens: <b>{total_itens}</b> &nbsp;&nbsp;|&nbsp;&nbsp; Soma dos valores: <b>{br_moeda(soma_valores)}</b>"
+    story.append(Paragraph(resumo, Normal))
+    story.append(Spacer(1, 6))
+
+    # Cabeçalho e dados
+    headers = [
+        "ID", "Situação", "CODOT", "Nº Patr.",
+        "Ano", "Disp.", "Categoria", "Valor (R$)", "Localização",
+        "Marca", "Modelo", "Nº Série",
+    ]
+    data = [headers]
 
     if rows:
         for it in rows:
             data.append([
                 it.id,
-                Paragraph(it.situacao_patrimonial or "-", CellStyle),
-                Paragraph(it.codot_item_material or "-", CellStyle),
-                Paragraph(it.numero_patrimonio_material or "-", CellStyle),
-                Paragraph(str(it.ano_fabricacao or "-"), CellStyle),
-                Paragraph(it.disponibilidade or "-", CellStyle),
-                Paragraph(it.categoria or "-", CellStyle),
-                Paragraph(_fmt_valor(it.valor_inclusao_carga), CellStyle),
-                Paragraph(it.localizacao_atual or "-", CellStyle),
-                Paragraph(it.marca or "-", CellStyle),
-                Paragraph(it.modelo or "-", CellStyle),
-                Paragraph(it.numero_serie or "-", CellStyle),
+                Paragraph(it.situacao_patrimonial or "-", Cell),
+                Paragraph(it.codot_item_material or "-", Cell),
+                Paragraph(it.numero_patrimonio_material or "-", Cell),
+                Paragraph(str(it.ano_fabricacao or "-"), Cell),
+                Paragraph(it.disponibilidade or "-", Cell),
+                Paragraph(it.categoria or "-", Cell),
+                Paragraph(br_moeda(it.valor_inclusao_carga), Cell),
+                Paragraph(it.localizacao_atual or "-", Cell),
+                Paragraph(it.marca or "-", Cell),
+                Paragraph(it.modelo or "-", Cell),
+                Paragraph(it.numero_serie or "-", Cell),
             ])
     else:
-        # Linha “vazia” amigável: evita parecer página em branco
-        data.append(["— Sem registros —"] + ["-"] * 12)
+        # Corrigido: usa o mesmo nº de colunas
+        data.append(["— Sem registros —"] + ["-"] * (len(headers) - 1))
 
-    # Larguras pensadas para caber em A4 com margens
+    # Larguras otimizadas p/ A4 paisagem
     col_widths = [
-        10*mm, 22*mm, 28*mm, 22*mm,
-        16*mm, 16*mm, 22*mm, 24*mm,
-        36*mm, 28*mm, 28*mm, 28*mm
+        10*mm, 24*mm, 28*mm, 24*mm,
+        14*mm, 16*mm, 24*mm, 22*mm,
+        36*mm, 28*mm, 32*mm, 26*mm
     ]
 
     tbl = Table(data, colWidths=col_widths, repeatRows=1)
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.black),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
-        ("ALIGN", (0,0), (-1,0), "CENTER"),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-        ("FONTSIZE", (0,0), (-1,0), 9),
-        ("GRID", (0,0), (-1,-1), 0.25, colors.grey),
-        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
-        ("FONTSIZE", (0,1), (-1,-1), 8),
-        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F7F7F7")]),
-    ]))
+    ts = [
+        # Cabeçalho
+        ("BACKGROUND", (0, 0), (-1, 0), colors.black),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 9),
+        # Grade e tipografia
+        ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("VALIGN", (0, 1), (-1, -1), "MIDDLE"),
+        ("FONTSIZE", (0, 1), (-1, -1), 8),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F7F7F7")]),
+        ("LEADING", (0, 1), (-1, -1), 10),
+        # Alinhamentos por coluna
+        ("ALIGN", (0, 1), (0, -1), "CENTER"),   # ID
+        ("ALIGN", (4, 1), (4, -1), "CENTER"),   # Ano
+        ("ALIGN", (5, 1), (5, -1), "CENTER"),   # Disp.
+        ("ALIGN", (7, 1), (7, -1), "RIGHT"),    # Valor
+    ]
+    # Em caso de "Sem registros", mantém alinhamento central
+    if not rows:
+        ts.append(("ALIGN", (0, 1), (-1, 1), "CENTER"))
 
+    tbl.setStyle(TableStyle(ts))
     story.append(tbl)
-    doc.build(story)
+
+    # ===== Cabeçalho/Rodapé por página =====
+    def _header_footer(canvas, doc_):
+        canvas.saveState()
+        w, h = landscape(A4)
+        # Título leve no topo
+        canvas.setFont("Helvetica", 8)
+        canvas.drawString(doc_.leftMargin, h - 10*mm, "CL6 • Relatório de Materiais")
+        # Numeração de páginas
+        page_txt = f"Página {canvas.getPageNumber()}"
+        canvas.drawRightString(w - doc_.rightMargin, 10*mm, page_txt)
+        canvas.restoreState()
+
+    doc.build(story, onFirstPage=_header_footer, onLaterPages=_header_footer)
 
     pdf = buffer.getvalue()
     buffer.close()
@@ -410,7 +443,6 @@ def cl6_print_pdf():
     resp.headers["Content-Type"] = "application/pdf"
     resp.headers["Content-Disposition"] = "inline; filename=resumo_cl6.pdf"
     return resp
-
 
 # =====================================================================================
 # CL7 — HUB + páginas separadas por Pelotão (NOVO) — sem mexer no fluxo de CL2/CL6
@@ -431,7 +463,7 @@ def _summary_query(filters):
         0,
     )
     indisp = func.coalesce(
-        func.sum(case((s.in_(["INDISPONIVEL", "INDISPONÍVEL", "DEFEITO", "MANUTENCAO", "MANUTENÇÃO"]), 1), else_=0)),
+        func.sum(case((s.in_(["INDISPONIVEL", "INDISPONÍVEL", "DEFEITO", "MANUTENCAO", "MANUTENÇÃO", "BAIXADO"]), 1), else_=0)),
         0,
     )
     caut = func.coalesce(
@@ -727,7 +759,7 @@ def cl7_print_pdf():
         buffer, pagesize=A4,
         leftMargin=15*mm, rightMargin=15*mm,
         topMargin=15*mm, bottomMargin=15*mm,
-        title="Resumo CL7 (Geral)"
+        title="Relação Classe VII - Geral"
     )
     styles = getSampleStyleSheet()
     H1 = ParagraphStyle("H1", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=18, spaceAfter=6)
