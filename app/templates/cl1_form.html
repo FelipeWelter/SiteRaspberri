@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+  <h3>{{ title }}</h3>
+  <form method="post">
+    {{ form.csrf_token }}
+    <div class="mb-3">{{ form.tipo.label }} {{ form.tipo(class="form-control") }}</div>
+    <div class="mb-3">{{ form.quantidade.label }} {{ form.quantidade(class="form-control") }}</div>
+    <div class="mb-3">{{ form.validade.label }} {{ form.validade(class="form-control") }}</div>
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a href="{{ url_for('inv.cl1_list') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

@@ -2,11 +2,25 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField, IntegerField, DecimalField, BooleanField, PasswordField,
-    TextAreaField, SelectField, SubmitField, SelectMultipleField, widgets
+    TextAreaField, SelectField, SubmitField, SelectMultipleField, widgets, DateField
 )
 from wtforms.validators import DataRequired, NumberRange, Optional, Length, EqualTo
 
 SITUACOES = [("OK", "OK"), ("EM_USO", "EM_USO"), ("INOPERANTE", "INOPERANTE")]
+
+# CLASSE 1 - RAÇÃO
+
+class CL1Form(FlaskForm):
+    tipo = SelectField(
+        "Tipo",
+        choices=[("RA", "Ração Operacional RA"), ("R2", "Ração Operacional R2"), ("R3", "Ração Operacional R3")],
+        validators=[DataRequired()],
+    )
+    quantidade = IntegerField("Quantidade", validators=[DataRequired()])
+    validade = DateField("Data de Validade", format="%Y-%m-%d", validators=[DataRequired()])
+    submit = SubmitField("Salvar")
+
+
 
 # ----------------- CL2 -----------------
 class CL2Form(FlaskForm):

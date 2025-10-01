@@ -60,6 +60,22 @@ class User(db.Model, UserMixin):
             perms = []
 
         return cls in perms
+    
+
+    # CLASSE 1 - RAÇÕES
+
+class CL1(db.Model):
+    __tablename__ = "cl1"
+
+    id = db.Column(db.Integer, primary_key=True)
+    tipo = db.Column(db.String(10), nullable=False)  # RA, R2, R3
+    quantidade = db.Column(db.Integer, nullable=False)
+    validade = db.Column(db.Date, nullable=False)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<CL1 {self.tipo} - {self.quantidade} - {self.validade}>"
 
 class CL2(db.Model):
     __tablename__ = "cl2"
@@ -71,6 +87,9 @@ class CL2(db.Model):
     qtd_indisp = db.Column(db.Integer, default=0)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+
 
 # ATUALIZAÇÃO CLASSE 6 --------------
 class CL6(db.Model):

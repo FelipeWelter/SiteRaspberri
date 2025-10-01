@@ -29,9 +29,58 @@ def normalize_situacao(raw: str | None) -> str:
         return "CAUTELADO"
     return (raw or "OK").upper()
 
-# =====================================================================================
-# CL2
-# =====================================================================================
+# Classe 1 - RAÇÕES 
+
+@bp.get("/cl1", endpoint="cl1_list")
+@class_required("CL1")
+def cl1_list():
+    rows = CL1.query.order_by(CL1.atualizado_em.desc()).all()
+    return render_template("inventory/cl1_list.html", rows=rows)
+
+# Novo
+@bp.route("/cl1/new", methods=["GET", "POST"], endpoint="cl1_new")
+@class_required("CL1")
+def cl1_new():
+    form = CL1Form()
+    if form.validate_on_submit():
+        item = CL1(
+            tipo=form.tipo.data,
+            quantidade=form.quantidade.data,
+            validade=form.validade.data,
+        )
+        db.session.add(item)
+        db.session.commit()
+        flash("Ração cadastrada com sucesso!", "success")
+        return redirect(url_for("inv.cl1_list"))
+    return render_template("inventory/cl1_form.html", form=form, title="Nova Ração")
+
+# Editar
+@bp.route("/cl1/<int:id>/edit", methods=["GET", "POST"], endpoint="cl1_edit")
+@class_required("CL1")
+def cl1_edit(id):
+    item = CL1.query.get_or_404(id)
+    form = CL1Form(obj=item)
+    if form.validate_on_submit():
+        item.tipo = form.tipo.data
+        item.quantidade = form.quantidade.data
+        item.validade = form.validade.data
+        db.session.commit()
+        flash("Ração atualizada com sucesso!", "success")
+        return redirect(url_for("inv.cl1_list"))
+    return render_template("inventory/cl1_form.html", form=form, title="Editar Ração")
+
+# Deletar
+@bp.post("/cl1/<int:id>/delete", endpoint="cl1_delete")
+@class_required("CL1")
+def cl1_delete(id):
+    item = CL1.query.get_or_404(id)
+    db.session.delete(item)
+    db.session.commit()
+    flash("Ração removida com sucesso!", "success")
+    return redirect(url_for("inv.cl1_list"))
+
+
+# CL2 =====================================================================================
 @bp.get("/cl2")
 @class_required("CL2")
 def cl2_list():
