@@ -154,11 +154,19 @@ def cl2_print_pdf():
         buffer, pagesize=A4,
         leftMargin=15*mm, rightMargin=15*mm,
         topMargin=15*mm, bottomMargin=15*mm,
-        title="Resumo CL2"
+        title="Resumo Classe 2"
     )
     styles = getSampleStyleSheet()
     H1 = ParagraphStyle("H1", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=18, spaceAfter=6)
     Normal = styles["Normal"]
+
+    CellStyle = ParagraphStyle(
+        name="CellStyle",
+        parent=styles["Normal"],
+        fontSize=9,
+        leading=11,
+        wordWrap="CJK" # QUEBRA DE LINHA AUTOMATICA
+    )
 
     story = []
     story.append(Paragraph("Resumo CL2", H1))
@@ -172,10 +180,15 @@ def cl2_print_pdf():
     story.append(Spacer(1, 8))
 
     data = [["ID", "Material", "Situação", "Prevista", "Disp.", "Indisp."]]
+
     for it in rows:
         data.append([
-            it.id, it.nome or "-", it.situacao or "-",
-            it.qtd_prevista or 0, it.qtd_disp or 0, it.qtd_indisp or 0
+            it.id,
+            Paragraph(it.nome or "-", CellStyle),
+            Paragraph(it.situacao or "-", CellStyle),
+            it.qtd_prevista or 0,
+            it.qtd_disp or 0,
+            it.qtd_indisp or 0
         ])
 
     tbl = Table(data, colWidths=[12*mm, 50*mm, 30*mm, 20*mm, 20*mm, 22*mm], repeatRows=1)
@@ -315,9 +328,20 @@ def cl6_print_pdf():
                         fontName="Helvetica-Bold", fontSize=16, spaceAfter=6)
     Normal = ParagraphStyle("Normal", parent=styles["Normal"], fontSize=9, leading=12)
 
+    #Estiilo para células com quebra de linha
+    CellStyle = ParagraphStyle(
+        name="CellStyle",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10,
+        wordWrap="CJK" # habilita quebra automática
+    )
+
     story = [Paragraph("Resumo CL6", H1)]
 
     cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+
     if q:
         cab += f" &nbsp;&nbsp;|&nbsp;&nbsp; Busca: <b>{q}</b>"
     story.append(Paragraph(cab, Normal))
@@ -340,17 +364,17 @@ def cl6_print_pdf():
         for it in rows:
             data.append([
                 it.id,
-                it.situacao_patrimonial or "-",
-                it.codot_item_material or "-",
-                it.numero_patrimonio_material or "-",
-                it.ano_fabricacao or "-",
-                it.disponibilidade or "-",
-                it.categoria or "-",
-                _fmt_valor(it.valor_inclusao_carga),
-                it.localizacao_atual or "-",
-                it.marca or "-",
-                it.modelo or "-",
-                it.numero_serie or "-",
+                Paragraph(it.situacao_patrimonial or "-", CellStyle),
+                Paragraph(it.codot_item_material or "-", CellStyle),
+                Paragraph(it.numero_patrimonio_material or "-", CellStyle),
+                Paragraph(str(it.ano_fabricacao or "-"), CellStyle),
+                Paragraph(it.disponibilidade or "-", CellStyle),
+                Paragraph(it.categoria or "-", CellStyle),
+                Paragraph(_fmt_valor(it.valor_inclusao_carga), CellStyle),
+                Paragraph(it.localizacao_atual or "-", CellStyle),
+                Paragraph(it.marca or "-", CellStyle),
+                Paragraph(it.modelo or "-", CellStyle),
+                Paragraph(it.numero_serie or "-", CellStyle),
             ])
     else:
         # Linha “vazia” amigável: evita parecer página em branco
@@ -358,8 +382,9 @@ def cl6_print_pdf():
 
     # Larguras pensadas para caber em A4 com margens
     col_widths = [
-        10*mm, 22*mm, 28*mm, 22*mm, 30*mm,
-        12*mm, 16*mm, 20*mm, 26*mm, 28*mm, 20*mm, 22*mm, 26*mm
+        10*mm, 22*mm, 28*mm, 22*mm,
+        16*mm, 16*mm, 22*mm, 24*mm,
+        36*mm, 28*mm, 28*mm, 28*mm
     ]
 
     tbl = Table(data, colWidths=col_widths, repeatRows=1)
@@ -599,16 +624,31 @@ def _cl7_print_pdf_core(pelotao_val: str, titulo: str):
     H1 = ParagraphStyle("H1", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=18, spaceAfter=6)
     Normal = styles["Normal"]
 
+    CellStyle = ParagraphStyle(
+        name="CellStyle",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10,
+        wordWrap="CJK"  # habilita quebra automática
+    )
+
     story = []
     story.append(Paragraph(titulo, H1))
     story.append(Paragraph(f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}", Normal))
     story.append(Spacer(1, 8))
 
     data = [["ID", "Material", "Marca", "Modelo", "Nº Série", "Situação", "Observação"]]
+
     for it in items:
         data.append([
-            it.id, it.material or "-", it.marca or "-", it.modelo or "-",
-            it.numero_serie or "-", it.situacao or "-", it.observacao or "-",
+            it.id,
+            Paragraph(it.material or "-", CellStyle),
+            Paragraph(it.marca or "-", CellStyle),
+            Paragraph(it.modelo or "-", CellStyle),
+            Paragraph(it.numero_serie or "-", CellStyle),
+            Paragraph(it.situacao or "-", CellStyle),
+            Paragraph(it.observacao or "-", CellStyle),
         ])
 
     tbl = Table(
@@ -693,6 +733,15 @@ def cl7_print_pdf():
     H1 = ParagraphStyle("H1", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=18, spaceAfter=6)
     Normal = styles["Normal"]
 
+    CellStyle = ParagraphStyle(
+        name="CellStyle",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10,
+        wordWrap="CJK"  # habilita quebra automática
+    )
+
     story = []
     story.append(Paragraph("Resumo CL7 — Geral", H1))
     cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
@@ -702,15 +751,16 @@ def cl7_print_pdf():
     story.append(Spacer(1, 8))
 
     data = [["ID", "Material", "Marca", "Modelo", "Nº Série", "Situação", "Observação"]]
+
     for it in items:
         data.append([
             it.id,
-            it.material or "-",
-            it.marca or "-",
-            it.modelo or "-",
-            it.numero_serie or "-",
-            it.situacao or "-",
-            it.observacao or "-",
+            Paragraph(it.material or "-", CellStyle),
+            Paragraph(it.marca or "-", CellStyle),
+            Paragraph(it.modelo or "-", CellStyle),
+            Paragraph(it.numero_serie or "-", CellStyle),
+            Paragraph(it.situacao or "-", CellStyle),
+            Paragraph(it.observacao or "-", CellStyle),
         ])
 
     tbl = Table(data, colWidths=[14*mm, 36*mm, 26*mm, 26*mm, 26*mm, 24*mm, 60*mm], repeatRows=1)
