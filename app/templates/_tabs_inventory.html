@@ -2,6 +2,14 @@
 {% set ep = request.endpoint or '' %}
 
 <ul class="nav nav-tabs mb-3">
+
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if ep[:8] == 'inv.cl1_' else '' }}"
+      href="{{ url_for('inv.cl1_list') }}">
+      CL1
+    </a>
+  </li>
+
   <li class="nav-item">
     <a class="nav-link {{ 'active' if ep[:8] == 'inv.cl2_' else '' }}"
        href="{{ url_for('inv.cl2_list') }}">

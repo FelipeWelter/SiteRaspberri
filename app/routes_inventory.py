@@ -10,8 +10,8 @@ from reportlab.lib.units import mm
 import io
 
 from .utils import class_required  # segue vindo do utils.py
-from .models import db, CL2, CL6, CL7
-from .forms import CL2Form, CL6Form, CL7Form
+from .models import db, CL2, CL6, CL7, CL1
+from .forms import CL2Form, CL6Form, CL7Form, CL1Form
 
 bp = Blueprint("inv", __name__, url_prefix="/inv")
 
@@ -35,7 +35,7 @@ def normalize_situacao(raw: str | None) -> str:
 @class_required("CL1")
 def cl1_list():
     rows = CL1.query.order_by(CL1.atualizado_em.desc()).all()
-    return render_template("inventory/cl1_list.html", rows=rows)
+    return render_template("cl1_list.html", rows=rows)
 
 # Novo
 @bp.route("/cl1/new", methods=["GET", "POST"], endpoint="cl1_new")
@@ -52,7 +52,7 @@ def cl1_new():
         db.session.commit()
         flash("Ração cadastrada com sucesso!", "success")
         return redirect(url_for("inv.cl1_list"))
-    return render_template("inventory/cl1_form.html", form=form, title="Nova Ração")
+    return render_template("cl1_form.html", form=form, title="Nova Ração")
 
 # Editar
 @bp.route("/cl1/<int:id>/edit", methods=["GET", "POST"], endpoint="cl1_edit")
@@ -67,7 +67,7 @@ def cl1_edit(id):
         db.session.commit()
         flash("Ração atualizada com sucesso!", "success")
         return redirect(url_for("inv.cl1_list"))
-    return render_template("inventory/cl1_form.html", form=form, title="Editar Ração")
+    return render_template("cl1_form.html", form=form, title="Editar Ração")
 
 # Deletar
 @bp.post("/cl1/<int:id>/delete", endpoint="cl1_delete")
