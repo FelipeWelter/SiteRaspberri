@@ -1,6 +1,10 @@
 # app/__init__.py
 from flask import Flask
 from .extensions import db, login_manager, migrate
+try:
+    from werkzeug.middleware.proxy_fix import ProxyFix  # moderno (Werkzeug 1.0+)
+except ImportError:  # fallback p/ versões antigas
+    from werkzeug.contrib.fixers import ProxyFix
 
 def create_app():
     app = Flask(__name__)
