@@ -5,6 +5,7 @@ from .extensions import db, login_manager, migrate
 def create_app():
     app = Flask(__name__)
     app.config.from_object("config.Config")
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)
 
     # Inicializa extensões
     db.init_app(app)
@@ -37,4 +38,5 @@ def create_app():
     app.register_blueprint(main_bp)
 
     return app
+
 
