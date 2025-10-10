@@ -4,6 +4,7 @@ from datetime import timedelta
 
 class Config:
     # 🔑 
+    APPLICATION_ROOT = '/clsite'
     SECRET_KEY = "22107dd3d6ca53feda551ef8e6bfbeb02b4681e975bae7daf52b65e2ed40386a"
 
     # Banco SQLite na pasta instance/
@@ -20,4 +21,5 @@ class Config:
     REMEMBER_COOKIE_SECURE = False
 
     APP_NAME = "SISTEMA DE CONTROLE DE MATERIAL"
+
     APP_VERSION = "1.2.4"
