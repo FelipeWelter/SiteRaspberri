@@ -6,6 +6,7 @@ class Config:
     # 🔑 
     APPLICATION_ROOT = '/clsite'
     SECRET_KEY = "22107dd3d6ca53feda551ef8e6bfbeb02b4681e975bae7daf52b65e2ed40386a"
+    SESSION_COOKIE_PATH = '/clsite'
 
     # Banco SQLite na pasta instance/
     SQLALCHEMY_DATABASE_URI = "sqlite:///site.db"
@@ -23,3 +24,4 @@ class Config:
     APP_NAME = "SISTEMA DE CONTROLE DE MATERIAL"
 
     APP_VERSION = "1.2.4"
+
