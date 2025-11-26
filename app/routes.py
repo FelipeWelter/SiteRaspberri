@@ -20,3 +20,7 @@ def dashboard():
 @bp.route("/healthz")
 def healthz():
     return "ok", 200
+
+@bp.route("/termos")
+def termos():
+    return render_template("termos.html")

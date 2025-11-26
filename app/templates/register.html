@@ -175,9 +175,15 @@
     <div class="card-body">
       <div class="form-check">
         {{ form.accept(class="form-check-input", id="accept") }}
+
         <label for="accept" class="form-check-label" style="color:#eafff0; font-weight:500;">
-          Declaro que as informações são verdadeiras e aceito os termos de uso.
+          Declaro que as informações são verdadeiras e aceito os 
+          <a href="{{ url_for('main.termos') }}" target="_blank" 
+             style="color:#7dffa4; text-decoration: underline;">
+            Termos de Uso
+          </a>.
         </label>
+
       </div>
 
       <!-- Aviso de conta inativa destacado em vermelho -->
@@ -189,6 +195,7 @@
 
   </div>
 </div>
+
 
 
           <!-- Ações -->
