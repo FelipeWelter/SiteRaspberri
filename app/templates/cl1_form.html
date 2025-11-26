@@ -1,13 +1,105 @@
 {% extends "base.html" %}
 {% block title %}{{ title }}{% endblock %}
+
 {% block content %}
-  <h3>{{ title }}</h3>
-  <form method="post">
-    {{ form.csrf_token }}
-    <div class="mb-3">{{ form.tipo.label }} {{ form.tipo(class="form-control") }}</div>
-    <div class="mb-3">{{ form.quantidade.label }} {{ form.quantidade(class="form-control") }}</div>
-    <div class="mb-3">{{ form.validade.label }} {{ form.validade(class="form-control") }}</div>
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="{{ url_for('inv.cl1_list') }}" class="btn btn-secondary">Cancelar</a>
-  </form>
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
+  }
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+  }
+  .card-glass {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    color: #fff;
+  }
+  .card-glass .card-body {
+    padding: 26px;
+  }
+  .card-glass label {
+    font-weight: 600;
+    color: #f1f1f1;
+  }
+  .card-glass .form-control {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+  .card-glass .form-control:focus {
+    background: rgba(255,255,255,0.20);
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 0 12px rgba(255,255,255,0.2);
+  }
+  h3 {
+    color: #fff;
+    font-weight: 800;
+    text-shadow: 0 3px 12px rgba(0,0,0,.4);
+    margin-bottom: 18px;
+  }
+  .card-glass select.form-control {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+.card-glass select.form-control option {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+        <h3>{{ title }}</h3>
+
+        <form method="post">
+          {{ form.csrf_token }}
+
+          <div class="mb-3">
+            {{ form.tipo.label }}
+            {{ form.tipo(class="form-control") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.quantidade.label }}
+            {{ form.quantidade(class="form-control") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.validade.label }}
+            {{ form.validade(class="form-control") }}
+          </div>
+
+          <button type="submit" class="btn btn-success w-100 mb-2">Salvar</button>
+          <a href="{{ url_for('inv.cl1_list') }}" class="btn btn-secondary w-100">Cancelar</a>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}

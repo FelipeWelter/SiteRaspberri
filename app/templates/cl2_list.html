@@ -1,67 +1,196 @@
 {% extends "base.html" %}
 {% block title %}CL2 - Lista{% endblock %}
+
 {% block content %}
-  {% include "_tabs_inventory.html" %}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.80));
+  }
 
- <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">Materiais CL2</h3>
-    <div class="btn-group">
-      <a class="btn btn-success" href="{{ url_for('inv.cl2_new') }}">+ Novo</a>
-      <a class="btn btn-outline-secondary"
-      href="{{ url_for('inv.cl2_print_pdf', q=(q if q else None)) }}">
-      🖨️ Imprimir CL2 (PDF)
-      </a>
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 1150px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
+
+  .card-glass .card-body {
+    padding: 32px;
+  }
+
+  h3 {
+    color: #fff;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 0 4px 14px rgba(0,0,0,.5);
+  }
+
+  /* Busca */
+  .card-glass .form-control {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+  .card-glass .form-control::placeholder {
+    color: #e0e0e0;
+  }
+  .card-glass .form-control:focus {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 0 12px rgba(255,255,255,0.2);
+  }
+
+  /* Tabela bem legível */
+  .table-glass {
+    width: 100%;
+    background: rgba(0,0,0,0.35) !important;
+    color: #fff !important;
+  }
+  .table-glass th {
+    color: #fff !important;
+    font-weight: 700;
+    background: rgba(255,255,255,0.08) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.25) !important;
+  }
+  .table-glass td {
+    color: #fff !important;
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+  }
+  .table-glass tbody tr:nth-child(even) td {
+    background: rgba(255,255,255,0.08) !important;
+  }
+  .table-glass tbody tr:hover td {
+    background: rgba(255,255,255,0.15) !important;
+  }
+
+  /* Paginação no tema escuro */
+  .pagination .page-link {
+    background: rgba(0,0,0,0.55);
+    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+  .pagination .page-link:hover {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+  .pagination .page-item.disabled .page-link {
+    background: rgba(255,255,255,0.08);
+    color: #ccc;
+  }
+
+  .btn-success {
+    box-shadow: 0 6px 18px rgba(40,167,69,.45);
+  }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>Materiais CL2</h3>
+          <div class="btn-group">
+            <a class="btn btn-success" href="{{ url_for('inv.cl2_new') }}">+ Novo</a>
+            <a class="btn btn-outline-secondary"
+               href="{{ url_for('inv.cl2_print_pdf', q=(q if q else None)) }}">
+              🖨️ Imprimir CL2 (PDF)
+            </a>
+          </div>
+        </div>
+
+        <form method="get" class="row g-2 mb-3">
+          <div class="col-md-4">
+            <input class="form-control" name="q" placeholder="Buscar..." value="{{ q or '' }}">
+          </div>
+          <div class="col-md-auto">
+            <button class="btn btn-primary">Buscar</button>
+          </div>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-glass align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Descrição do Material</th>
+                <th>Situação</th>
+                <th>Previsto</th>
+                <th>Disponível</th>
+                <th>Indisponível</th>
+                <th style="width:150px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for it in items.items %}
+              <tr>
+                <td>{{ it.id }}</td>
+                <td>{{ it.nome }}</td>
+                <td>{{ it.situacao }}</td>
+                <td>{{ it.qtd_prevista }}</td>
+                <td>{{ it.qtd_disp }}</td>
+                <td>{{ it.qtd_indisp }}</td>
+                <td class="text-nowrap">
+                  <a class="btn btn-sm btn-outline-primary" href="{{ url_for('inv.cl2_edit', id=it.id) }}">Editar</a>
+                  <form method="post" action="{{ url_for('inv.cl2_delete', id=it.id) }}" style="display:inline"
+                        onsubmit="return confirm('Confirmar exclusão?')">
+                    <button class="btn btn-sm btn-outline-danger">Excluir</button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="text-center text-muted">Nenhum registro</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <nav>
+          <ul class="pagination">
+            {% if items.has_prev %}
+              <li class="page-item">
+                <a class="page-link" href="{{ url_for('inv.cl2_list', page=items.prev_num, q=q) }}">«</a>
+              </li>
+            {% endif %}
+            <li class="page-item disabled">
+              <span class="page-link">Página {{ items.page }} de {{ items.pages }}</span>
+            </li>
+            {% if items.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="{{ url_for('inv.cl2_list', page=items.next_num, q=q) }}">»</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+
+      </div>
     </div>
+
   </div>
-
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-4">
-      <input class="form-control" name="q" placeholder="Buscar..." value="{{ q or '' }}">
-    </div>
-    <div class="col-md-auto">
-      <button class="btn btn-primary">Buscar</button>
-    </div>
-  </form>
-
-  <div class="table-responsive">
-    <table class="table table-sm table-striped align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th>ID</th><th>Descrição do Material</th><th>Situação</th><th>Previsto</th><th>Disponível</th><th>Indisponível</th><th style="width:150px;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for it in items.items %}
-        <tr>
-          <td>{{ it.id }}</td>
-          <td>{{ it.nome }}</td>
-          <td>{{ it.situacao }}</td>
-          <td>{{ it.qtd_prevista }}</td>
-          <td>{{ it.qtd_disp }}</td>
-          <td>{{ it.qtd_indisp }}</td>
-          <td class="text-nowrap">
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('inv.cl2_edit', id=it.id) }}">Editar</a>
-            <form method="post" action="{{ url_for('inv.cl2_delete', id=it.id) }}" style="display:inline" onsubmit="return confirm('Confirmar exclusão?')">
-              <button class="btn btn-sm btn-outline-danger">Excluir</button>
-            </form>
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="7" class="text-center text-muted">Nenhum registro</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <nav>
-    <ul class="pagination">
-      {% if items.has_prev %}
-        <li class="page-item"><a class="page-link" href="{{ url_for('inv.cl2_list', page=items.prev_num, q=q) }}">«</a></li>
-      {% endif %}
-      <li class="page-item disabled"><span class="page-link">Página {{ items.page }} de {{ items.pages }}</span></li>
-      {% if items.has_next %}
-        <li class="page-item"><a class="page-link" href="{{ url_for('inv.cl2_list', page=items.next_num, q=q) }}">»</a></li>
-      {% endif %}
-    </ul>
-  </nav>
+</div>
 {% endblock %}

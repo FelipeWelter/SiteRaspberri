@@ -1,33 +1,114 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL2{% endblock %}
+
 {% block content %}
-  {% include "_tabs_inventory.html" %}
-  <h3 class="mb-3">{{ 'Novo' if mode=='new' else 'Editar' }} CL2</h3>
-  <form method="post" class="row g-3">
-    {{ form.csrf_token }}
-    <div class="col-md-6">
-      {{ form.nome.label(class="form-label") }}
-      {{ form.nome(class="form-control") }}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.75));
+  }
+
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
+
+  .card-glass .card-body {
+    padding: 32px;
+  }
+
+  h3 {
+    color: #fff;
+    font-weight: 800;
+    text-shadow: 0 4px 14px rgba(0,0,0,.5);
+    margin-bottom: 20px;
+  }
+
+  label {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .form-control {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+
+  .form-control:focus {
+    background: rgba(255,255,255,0.20);
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 0 12px rgba(255,255,255,0.2);
+  }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <h3>{{ 'Novo' if mode=='new' else 'Editar' }} CL2</h3>
+
+        <form method="post" class="row g-3">
+          {{ form.csrf_token }}
+
+          <div class="col-md-6">
+            {{ form.nome.label(class="form-label") }}
+            {{ form.nome(class="form-control") }}
+          </div>
+
+          <div class="col-md-6">
+            {{ form.situacao.label(class="form-label") }}
+            {{ form.situacao(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.qtd_prevista.label(class="form-label") }}
+            {{ form.qtd_prevista(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.qtd_disp.label(class="form-label") }}
+            {{ form.qtd_disp(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.qtd_indisp.label(class="form-label") }}
+            {{ form.qtd_indisp(class="form-control") }}
+          </div>
+
+          <div class="col-12 mt-3">
+            {{ form.submit(class="btn btn-primary w-100 mb-2") }}
+            <a class="btn btn-secondary w-100" href="{{ url_for('inv.cl2_list') }}">Voltar</a>
+          </div>
+        </form>
+
+      </div>
     </div>
-    <div class="col-md-6">
-      {{ form.situacao.label(class="form-label") }}
-      {{ form.situacao(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.qtd_prevista.label(class="form-label") }}
-      {{ form.qtd_prevista(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.qtd_disp.label(class="form-label") }}
-      {{ form.qtd_disp(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.qtd_indisp.label(class="form-label") }}
-      {{ form.qtd_indisp(class="form-control") }}
-    </div>
-    <div class="col-12">
-      {{ form.submit(class="btn btn-primary") }}
-      <a class="btn btn-secondary" href="{{ url_for('inv.cl2_list') }}">Voltar</a>
-    </div>
-  </form>
+
+  </div>
+</div>
 {% endblock %}

@@ -1,39 +1,135 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} · CL7 · {{ pel_label }}{% endblock %}
+
 {% block content %}
-  <h3 class="mb-3">CL7 · {{ pel_label }} · {{ 'Novo' if mode=='new' else 'Editar' }}</h3>
-  <form method="post" class="row g-3">
-    {{ form.csrf_token }}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.80));
+  }
 
-    <div class="col-md-6">
-      {{ form.material.label(class="form-label") }}
-      {{ form.material(class="form-control", placeholder="Ex.: Rádio / Notebook / Impressora...") }}
-    </div>
-    <div class="col-md-3">
-      {{ form.marca.label(class="form-label") }}
-      {{ form.marca(class="form-control") }}
-    </div>
-    <div class="col-md-3">
-      {{ form.modelo.label(class="form-label") }}
-      {{ form.modelo(class="form-control") }}
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
+
+  .card-glass .card-body {
+    padding: 32px;
+  }
+
+  h3 {
+    color: #fff;
+    font-weight: 800;
+    text-shadow: 0 4px 14px rgba(0,0,0,.5);
+    margin-bottom: 20px;
+  }
+
+  label {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .form-control,
+  .form-select {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+  .form-control::placeholder {
+    color: #e0e0e0;
+  }
+  .form-control:focus,
+  .form-select:focus {
+    background: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.65);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(255,255,255,0.25);
+  }
+
+  /* opções de selects legíveis, se houver */
+  .form-select option,
+  select option {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <h3>CL7 · {{ pel_label }} · {{ 'Novo' if mode=='new' else 'Editar' }}</h3>
+
+        <form method="post" class="row g-3">
+          {{ form.csrf_token }}
+
+          <div class="col-md-6">
+            {{ form.material.label(class="form-label") }}
+            {{ form.material(class="form-control", placeholder="Ex.: Rádio / Notebook / Impressora...") }}
+          </div>
+
+          <div class="col-md-3">
+            {{ form.marca.label(class="form-label") }}
+            {{ form.marca(class="form-control") }}
+          </div>
+
+          <div class="col-md-3">
+            {{ form.modelo.label(class="form-label") }}
+            {{ form.modelo(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.numero_serie.label(class="form-label") }}
+            {{ form.numero_serie(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.situacao.label(class="form-label") }}
+            {{ form.situacao(class="form-control", placeholder="OK / CAUTELADO / INDISPONÍVEL") }}
+          </div>
+
+          <div class="col-12">
+            {{ form.observacao.label(class="form-label") }}
+            {{ form.observacao(class="form-control", rows="3") }}
+          </div>
+
+          <div class="col-12 mt-3">
+            <button class="btn btn-primary">{{ 'Salvar' if mode=='new' else 'Atualizar' }}</button>
+            <a class="btn btn-secondary mt-2" href="{{ url_for(back_endpoint) }}">Voltar</a>
+          </div>
+        </form>
+
+      </div>
     </div>
 
-    <div class="col-md-4">
-      {{ form.numero_serie.label(class="form-label") }}
-      {{ form.numero_serie(class="form-control") }}
-    </div>
-    <div class="col-md-4">
-      {{ form.situacao.label(class="form-label") }}
-      {{ form.situacao(class="form-control", placeholder="OK / CAUTELADO / INDISPONÍVEL") }}
-    </div>
-    <div class="col-12">
-      {{ form.observacao.label(class="form-label") }}
-      {{ form.observacao(class="form-control", rows="3") }}
-    </div>
-
-    <div class="col-12">
-      <button class="btn btn-primary">{{ 'Salvar' if mode=='new' else 'Atualizar' }}</button>
-      <a class="btn btn-secondary" href="{{ url_for(back_endpoint) }}">Voltar</a>
-    </div>
-  </form>
+  </div>
+</div>
 {% endblock %}

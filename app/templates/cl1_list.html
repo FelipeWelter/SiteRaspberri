@@ -1,36 +1,127 @@
 {% extends "base.html" %}
 {% block title %}CL1 - Ração Operacional{% endblock %}
+
 {% block content %}
-  {% include "_tabs_inventory.html" %}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.75));
+  }
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">CL1 - Ração Operacional</h3>
-    <a class="btn btn-success" href="{{ url_for('inv.cl1_new') }}">+ Nova Ração</a>
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.50);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
+
+  .card-glass .card-body {
+    padding: 32px;
+  }
+
+  h3 {
+    color: #fff;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 0 4px 14px rgba(0,0,0,.5);
+  }
+
+/* Tabela com ótimo contraste */
+.table-glass {
+    width: 100%;
+    background: rgba(0,0,0,0.35) !important;
+    color: #fff !important;
+}
+
+.table-glass th {
+    color: #fff !important;
+    font-weight: 700;
+    background: rgba(255,255,255,0.08) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.25) !important;
+}
+
+.table-glass td {
+    color: #fff !important;
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+}
+
+.table-glass tbody tr:nth-child(even) td {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.table-glass tbody tr:hover td {
+    background: rgba(255,255,255,0.15) !important;
+}
+
+
+  .btn-success {
+    box-shadow: 0 6px 18px rgba(40,167,69,.45);
+  }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <!-- CARD PRINCIPAL -->
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3>CL1 - Ração Operacional</h3>
+          <a class="btn btn-success" href="{{ url_for('inv.cl1_new') }}">+ Nova Ração</a>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-glass">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Validade</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in rows %}
+              <tr>
+                <td>{{ r.tipo }}</td>
+                <td>{{ r.quantidade }}</td>
+                <td>{{ r.validade.strftime('%d/%m/%Y') }}</td>
+                <td>
+                  <a class="btn btn-sm btn-primary" href="{{ url_for('inv.cl1_edit', id=r.id) }}">Editar</a>
+                  <form method="post" action="{{ url_for('inv.cl1_delete', id=r.id) }}" style="display:inline;">
+                    <button class="btn btn-sm btn-danger" onclick="return confirm('Remover este item?')">Excluir</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
   </div>
-
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Tipo</th>
-        <th>Quantidade</th>
-        <th>Validade</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
-      <tr>
-        <td>{{ r.tipo }}</td>
-        <td>{{ r.quantidade }}</td>
-        <td>{{ r.validade.strftime('%d/%m/%Y') }}</td>
-        <td>
-          <a class="btn btn-sm btn-primary" href="{{ url_for('inv.cl1_edit', id=r.id) }}">Editar</a>
-          <form method="post" action="{{ url_for('inv.cl1_delete', id=r.id) }}" style="display:inline;">
-            <button class="btn btn-sm btn-danger" onclick="return confirm('Remover este item?')">Excluir</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+</div>
 {% endblock %}

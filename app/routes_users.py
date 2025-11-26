@@ -88,32 +88,52 @@ def users_edit(id):
         active=u.active,
         classes=[c.classe for c in u.classes],
     )
+
     if form.validate_on_submit():
         # impedir duplicar username em outro usuário
-        if User.query.filter(User.username == form.username.data, User.id != u.id).first():
+        if User.query.filter(
+            User.username == form.username.data,
+            User.id != u.id
+        ).first():
             flash("Login já utilizado por outro usuário.", "warning")
             return render_template("users_form.html", form=form, mode="edit", user=u)
 
+        # Atualiza dados básicos
         u.full_name = form.full_name.data
         u.username  = form.username.data
         u.identity  = form.identity.data
         u.role      = form.role.data
         u.active    = bool(form.active.data)
+
+        # Atualiza senha se foi preenchida
         if form.password.data:
             u.set_password(form.password.data)
 
-        u.classes.clear()
+        # --- ATUALIZAÇÃO DAS CLASSES ---
+
+        # 1) Apaga TODAS as classes atuais desse usuário direto no banco
+        UserClass.query.filter_by(user_id=u.id).delete()
+        db.session.flush()  # garante que os deletes rodaram antes dos inserts
+
+        # 2) Se for perfil "user", recria as classes selecionadas
         if u.role == "user":
+            seen = set()  # só por segurança, evita duplicar a mesma classe
             for c in (form.classes.data or []):
+                if not c:
+                    continue
+                if c in seen:
+                    continue
+                seen.add(c)
                 u.classes.append(UserClass(classe=c))
 
         db.session.commit()
         flash("Usuário atualizado.", "success")
         return redirect(url_for("admin.users_list"))
 
-    # Pré-popula checkboxes de classes
+    # Pré-popula checkboxes de classes (GET ou form inválido)
     form.classes.data = [c.classe for c in u.classes]
     return render_template("users_form.html", form=form, mode="edit", user=u)
+
 
 @bp.route("/users/<int:id>/password", methods=["GET","POST"])
 @admin_required

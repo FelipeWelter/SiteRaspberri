@@ -1,86 +1,250 @@
 {% extends "base.html" %}
 {% block title %}CL6 - Lista{% endblock %}
+
 {% block content %}
-  {% include "_tabs_inventory.html" %}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.80));
+  }
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">Materiais CL6</h3>
-    <div class="btn-group">
-      <a class="btn btn-success" href="{{ url_for('inv.cl6_new') }}">+ Novo</a>
-      <a class="btn btn-outline-secondary"
-      href="{{ url_for('inv.cl6_print_pdf', q=(q if q else None)) }}">
-      🖨️ Imprimir CL6 (PDF)
-      </a>
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 1500px;
+  }
+
+  @media (min-width: 1600px) {
+  .dash-container { max-width: 1650px; }
+}
+
+@media (min-width: 1920px) {
+  .dash-container { max-width: 1800px; }
+}
+
+
+  .card-glass {
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
+
+  .card-glass .card-body {
+    padding: 32px;
+  }
+
+  h3 {
+    color: #fff;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 0 4px 14px rgba(0,0,0,.5);
+  }
+
+  /* Busca */
+  .card-glass .form-control {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+  .card-glass .form-control::placeholder {
+    color: #e0e0e0;
+  }
+  .card-glass .form-control:focus {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 0 12px rgba(255,255,255,0.2);
+  }
+
+  /* Tabela alinhada e legível */
+  .table-glass {
+    table-layout: fixed !important;
+    width: 100%;
+    background: rgba(0,0,0,0.35) !important;
+    color: #fff !important;
+  }
+  .table-glass th,
+  .table-glass td {
+    word-break: break-word;
+    white-space: normal !important;
+    vertical-align: middle;
+  }
+
+  .table-glass th {
+    color: #fff !important;
+    font-weight: 700;
+    background: rgba(255,255,255,0.08) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.25) !important;
+  }
+  .table-glass td {
+    color: #fff !important;
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+  }
+  .table-glass tbody tr:nth-child(even) td {
+    background: rgba(255,255,255,0.08) !important;
+  }
+  .table-glass tbody tr:hover td {
+    background: rgba(255,255,255,0.15) !important;
+  }
+
+  /* Larguras por coluna */
+  .table-col-id              { width: 50px; }
+  .table-col-situacao        { width: 110px; }
+  .table-col-codot           { width: 90px; }
+  .table-col-patrimonio      { width: 110px; }
+  .table-col-ano             { width: 70px; }
+  .table-col-disponibilidade { width: 80px; }
+  .table-col-categoria       { width: 110px; }
+  .table-col-valor           { width: 130px; }
+  .table-col-localizacao     { width: 130px; }
+  .table-col-modelo          { width: 130px; }
+  .table-col-serie           { width: 100px; }
+  .table-col-acoes           { width: 140px; text-align: center; }
+
+  /* Paginação dark */
+  .pagination .page-link {
+    background: rgba(0,0,0,0.55);
+    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+  .pagination .page-link:hover {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+  .pagination .page-item.disabled .page-link {
+    background: rgba(255,255,255,0.08);
+    color: #ccc;
+  }
+
+  .btn-success {
+    box-shadow: 0 6px 18px rgba(40,167,69,.45);
+  }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>Materiais CL6</h3>
+          <div class="btn-group">
+            <a class="btn btn-success" href="{{ url_for('inv.cl6_new') }}">+ Novo</a>
+            <a class="btn btn-outline-secondary"
+               href="{{ url_for('inv.cl6_print_pdf', q=(q if q else None)) }}">
+              🖨️ Imprimir CL6 (PDF)
+            </a>
+          </div>
+        </div>
+
+        <form method="get" class="row g-2 mb-3">
+          <div class="col-md-6">
+            <input class="form-control" name="q"
+                   placeholder="Buscar por situação, patrimônio, CODOT, localização, marca, modelo, série..."
+                   value="{{ q or '' }}">
+          </div>
+          <div class="col-md-auto">
+            <button class="btn btn-primary">Buscar</button>
+          </div>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-glass align-middle">
+            <thead>
+              <tr>
+                <th class="table-col-id">ID</th>
+                <th class="table-col-situacao">Situação</th>
+                <th class="table-col-codot">CODOT</th>
+                <th class="table-col-patrimonio">Nº Patr. (mat)</th>
+                <th class="table-col-ano">Ano</th>
+                <th class="table-col-disponibilidade">Disp.</th>
+                <th class="table-col-categoria">Categoria</th>
+                <th class="table-col-valor">Valor (inc. carga)</th>
+                <th class="table-col-localizacao">Localização</th>
+                <th class="table-col-modelo">Marca/Modelo</th>
+                <th class="table-col-serie">Nº Série</th>
+                <th class="table-col-acoes">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for it in items.items %}
+              <tr>
+                <td>{{ it.id }}</td>
+                <td>{{ it.situacao_patrimonial or '-' }}</td>
+                <td>{{ it.codot_item_material or '-' }}</td>
+                <td>{{ it.numero_patrimonio_material or '-' }}</td>
+                <td>{{ it.ano_fabricacao or '-' }}</td>
+                <td>{{ it.disponibilidade or '-' }}</td>
+                <td>{{ it.categoria or '-' }}</td>
+                <td>
+                  R$
+                  {{ '{:,.2f}'.format((it.valor_inclusao_carga or 0))
+                      .replace(',', 'X').replace('.', ',').replace('X', '.') }}
+                </td>
+                <td>{{ it.localizacao_atual or '-' }}</td>
+                <td>{{ (it.marca or '-') ~ '/' ~ (it.modelo or '-') }}</td>
+                <td>{{ it.numero_serie or '-' }}</td>
+                <td class="text-nowrap text-center">
+                  <a class="btn btn-sm btn-outline-primary"
+                     href="{{ url_for('inv.cl6_edit', id=it.id) }}">Editar</a>
+                  <form method="post"
+                        action="{{ url_for('inv.cl6_delete', id=it.id) }}"
+                        style="display:inline"
+                        onsubmit="return confirm('Confirmar exclusão?')">
+                    <button class="btn btn-sm btn-outline-danger">Excluir</button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="12" class="text-center text-muted">Nenhum registro</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <nav>
+          <ul class="pagination">
+            {% if items.has_prev %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="{{ url_for('inv.cl6_list', page=items.prev_num, q=q) }}">«</a>
+              </li>
+            {% endif %}
+            <li class="page-item disabled">
+              <span class="page-link">
+                Página {{ items.page }} de {{ items.pages }}
+              </span>
+            </li>
+            {% if items.has_next %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="{{ url_for('inv.cl6_list', page=items.next_num, q=q) }}">»</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+
+      </div>
     </div>
+
   </div>
-
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-6">
-      <input class="form-control" name="q"
-             placeholder="Buscar por situação, patrimônio, CODOT, localização, marca, modelo, série..."
-             value="{{ q or '' }}">
-    </div>
-    <div class="col-md-auto">
-      <button class="btn btn-primary">Buscar</button>
-    </div>
-  </form>
-
-  <div class="table-responsive">
-    <table class="table table-sm table-striped align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>Situação</th>
-          <th>CODOT</th>
-          <th>Nº Patr. (mat)</th>
-          <th>Ano</th>
-          <th>Disp.</th>
-          <th>Categoria</th>
-          <th>Valor (inc. carga)</th>
-          <th>Localização</th>
-          <th>Marca/Modelo</th>
-          <th>Nº Série</th>
-          <th style="width:150px;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for it in items.items %}
-        <tr>
-          <td>{{ it.id }}</td>
-          <td>{{ it.situacao_patrimonial }}</td>
-          <td>{{ it.numero_patrimonio or '-' }}</td>
-          <td>{{ it.codot_item_material or '-' }}</td>
-          <td>{{ it.numero_patrimonio_material or '-' }}</td>
-          <td>{{ it.ano_fabricacao or '-' }}</td>
-          <td>{{ it.disponibilidade or '-' }}</td>
-          <td>{{ it.categoria or '-' }}</td>
-          <td>R$ {{ '{:,.2f}'.format((it.valor_inclusao_carga or 0)).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
-          <td>{{ it.localizacao_atual or '-' }}</td>
-          <td>{{ (it.marca or '-') ~ '/' ~ (it.modelo or '-') }}</td>
-          <td>{{ it.numero_serie or '-' }}</td>
-          <td class="text-nowrap">
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('inv.cl6_edit', id=it.id) }}">Editar</a>
-            <form method="post" action="{{ url_for('inv.cl6_delete', id=it.id) }}" style="display:inline" onsubmit="return confirm('Confirmar exclusão?')">
-              <button class="btn btn-sm btn-outline-danger">Excluir</button>
-            </form>
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="13" class="text-center text-muted">Nenhum registro</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <nav>
-    <ul class="pagination">
-      {% if items.has_prev %}
-        <li class="page-item"><a class="page-link" href="{{ url_for('inv.cl6_list', page=items.prev_num, q=q) }}">«</a></li>
-      {% endif %}
-      <li class="page-item disabled"><span class="page-link">Página {{ items.page }} de {{ items.pages }}</span></li>
-      {% if items.has_next %}
-        <li class="page-item"><a class="page-link" href="{{ url_for('inv.cl6_list', page=items.next_num, q=q) }}">»</a></li>
-      {% endif %}
-    </ul>
-  </nav>
+</div>
 {% endblock %}

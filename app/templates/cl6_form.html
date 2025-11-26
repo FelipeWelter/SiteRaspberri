@@ -1,35 +1,172 @@
-{# templates/cl6_form.html #}
 {% extends "base.html" %}
 {% block title %}{{ 'Novo' if mode=='new' else 'Editar' }} CL6{% endblock %}
+
 {% block content %}
-  {% include "_tabs_inventory.html" %}
-  <h3 class="mb-3">{{ 'Novo' if mode=='new' else 'Editar' }} CL6</h3>
-  <form method="post" class="row g-3">
-    {{ form.csrf_token }}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.80));
+  }
 
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+  }
 
-    <div class="col-md-3">{{ form.situacao_patrimonial.label(class="form-label") }}{{ form.situacao_patrimonial(class="form-select") }}</div>
-    <div class="col-md-3">{{ form.categoria.label(class="form-label") }}{{ form.categoria(class="form-select") }}</div>
-    <div class="col-md-3">{{ form.disponibilidade.label(class="form-label") }}{{ form.disponibilidade(class="form-control") }}</div>
-    <div class="col-md-3">{{ form.ano_fabricacao.label(class="form-label") }}{{ form.ano_fabricacao(class="form-control") }}</div>
+  .card-glass {
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
 
+  .card-glass .card-body {
+    padding: 32px;
+  }
 
-    <div class="col-md-4">{{ form.numero_patrimonio_material.label(class="form-label") }}{{ form.numero_patrimonio_material(class="form-control") }}</div>
-    <div class="col-md-4">{{ form.codot_item_material.label(class="form-label") }}{{ form.codot_item_material(class="form-control") }}</div>
+  h3 {
+    color: #fff;
+    font-weight: 800;
+    text-shadow: 0 4px 14px rgba(0,0,0,.5);
+    margin-bottom: 20px;
+  }
 
+  /* Labels */
+  label {
+    color: #fff;
+    font-weight: 600;
+  }
 
-    <div class="col-md-4">{{ form.localizacao_atual.label(class="form-label") }}{{ form.localizacao_atual(class="form-control") }}</div>
-    <div class="col-md-4">{{ form.marca.label(class="form-label") }}{{ form.marca(class="form-control") }}</div>
-    <div class="col-md-4">{{ form.modelo.label(class="form-label") }}{{ form.modelo(class="form-control") }}</div>
+  /* Inputs */
+  .form-control,
+  .form-select {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+  .form-control::placeholder {
+    color: #e0e0e0;
+  }
+  .form-control:focus,
+  .form-select:focus {
+    background: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.65);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(255,255,255,0.25);
+  }
 
+  /* Buttons */
+  .btn-primary {
+    width: 100%;
+  }
+  .btn-secondary {
+    width: 100%;
+  }
 
-    <div class="col-md-4">{{ form.numero_serie.label(class="form-label") }}{{ form.numero_serie(class="form-control") }}</div>
-    <div class="col-md-4">{{ form.valor_inclusao_carga.label(class="form-label") }}{{ form.valor_inclusao_carga(class="form-control", step="0.01") }}</div>
+  /* Opções dos selects com fundo branco e texto preto */
+.form-select option {
+  background: #fff !important;
+  color: #000 !important;
+}
 
+/* Para navegadores que não aplicam acima, reforço */
+select option {
+  background: #fff !important;
+  color: #000 !important;
+}
 
-    <div class="col-12">
-      {{ form.submit(class="btn btn-primary") }}
-      <a class="btn btn-secondary" href="{{ url_for('inv.cl6_list') }}">Voltar</a>
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <h3>{{ 'Novo' if mode=='new' else 'Editar' }} CL6</h3>
+
+        <form method="post" class="row g-3">
+          {{ form.csrf_token }}
+
+          <div class="col-md-3">
+            {{ form.situacao_patrimonial.label(class="form-label") }}
+            {{ form.situacao_patrimonial(class="form-select") }}
+          </div>
+
+          <div class="col-md-3">
+            {{ form.categoria.label(class="form-label") }}
+            {{ form.categoria(class="form-select") }}
+          </div>
+
+          <div class="col-md-3">
+            {{ form.disponibilidade.label(class="form-label") }}
+            {{ form.disponibilidade(class="form-control") }}
+          </div>
+
+          <div class="col-md-3">
+            {{ form.ano_fabricacao.label(class="form-label") }}
+            {{ form.ano_fabricacao(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.numero_patrimonio_material.label(class="form-label") }}
+            {{ form.numero_patrimonio_material(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.codot_item_material.label(class="form-label") }}
+            {{ form.codot_item_material(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.localizacao_atual.label(class="form-label") }}
+            {{ form.localizacao_atual(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.marca.label(class="form-label") }}
+            {{ form.marca(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.modelo.label(class="form-label") }}
+            {{ form.modelo(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.numero_serie.label(class="form-label") }}
+            {{ form.numero_serie(class="form-control") }}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.valor_inclusao_carga.label(class="form-label") }}
+            {{ form.valor_inclusao_carga(class="form-control", step="0.01") }}
+          </div>
+
+          <div class="col-12 mt-3">
+            {{ form.submit(class="btn btn-primary mb-2") }}
+            <a class="btn btn-secondary" href="{{ url_for('inv.cl6_list') }}">Voltar</a>
+          </div>
+
+        </form>
+
+      </div>
     </div>
-  </form>
+
+  </div>
+</div>
 {% endblock %}

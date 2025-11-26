@@ -1,164 +1,307 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}{% endblock %}
-{% block content %}
 
+{% block content %}
 <style>
-  .card-section { border-radius: .75rem; }
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.85));
+  }
+
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 15px 40px rgba(0,0,0,.6);
+    color: #fff;
+  }
+
+  .card-section {
+    border-radius: .75rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    margin-bottom: 1rem;
+  }
+
+  .card-section .card-header {
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+  }
+
+  .card-section .card-body {
+    padding: 1rem 1rem 1.25rem 1rem;
+  }
+
   .avatar {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(13,110,253,.15); color:#0d6efd;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(13,110,253,.25);
+    color:#fff;
     display:inline-flex; align-items:center; justify-content:center;
+    font-weight:700;
+    font-size: 1.1rem;
+  }
+
+  h4 { color:#fff; }
+
+  label.form-label {
+    color:#fff;
     font-weight:600;
   }
-  .cls-chip { margin-right:.35rem; margin-bottom:.35rem; }
+
+  .form-control,
+  .form-select {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    color:#ffffff;
+  }
+  .form-control::placeholder {
+    color:#555252;
+  }
+  .form-control:focus,
+  .form-select:focus {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.7);
+    color:#fff;
+    box-shadow: 0 0 12px rgba(255,255,255,0.25);
+  }
+
+  .form-check-label { color:#fff; }
+
+  .text-muted { color:#c9c9c9 !important; }
+
+  .btn-primary,
+  .btn-secondary {
+    min-width: 180px;
+  }
+
+  /* Força o dropdown do SELECT nesta página a ficar escuro */
+#role option,
+.card-section select option,
+select option {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Quando o SELECT abre (área da lista), corrigir fundo */
+#role,
+.card-section select,
+select.form-select {
+    background-color: #222 !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.35) !important;
+}
+
+/* Força o dropdown inteiro a seguir o tema */
+select.form-select:focus,
+select:focus {
+    background-color: #222 !important;
+    color: #fff !important;
+}
+
+
+/* Correção EXCLUSIVA para inputs desabilitados (ex: Login) */
+input.form-control:disabled,
+input[disabled],
+.form-control:disabled {
+    background: rgba(35,35,35,0.95) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.35) !important;
+    opacity: 1 !important; /* remove fade do Bootstrap */
+}
+
 </style>
 
-<div class="d-flex align-items-center gap-3 mb-3">
-  <div class="avatar" title="{{ form.username.data or (user.username if user else '') }}">
-    {{ (form.full_name.data or (user.full_name if user else form.username.data) or 'U')[:1]|upper }}
-  </div>
-  <div>
-    <h4 class="mb-0">{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}</h4>
-    <small class="text-muted">
-      {% if mode=='new' %}Preencha os dados abaixo para criar o usuário.{% else %}@{{ user.username }}{% endif %}
-    </small>
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="avatar" title="{{ form.username.data or (user.username if user else '') }}">
+            {{ (form.full_name.data or (user.full_name if user else form.username.data) or 'U')[:1]|upper }}
+          </div>
+          <div>
+            <h4 class="mb-0">{{ 'Novo Usuário' if mode=='new' else 'Editar Usuário' }}</h4>
+            <small class="text-muted">
+              {% if mode=='new' %}
+                Preencha os dados abaixo para criar o usuário.
+              {% else %}
+                @{{ user.username }}
+              {% endif %}
+            </small>
+          </div>
+        </div>
+
+        <form method="post" class="row g-4">
+          {{ form.csrf_token }}
+
+          <!-- Dados básicos -->
+          <div class="col-12">
+            <div class="card card-section shadow-sm">
+              <div class="card-header">
+                <strong>Informações básicas</strong>
+              </div>
+              <div class="card-body row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nome completo</label>
+                  {{ form.full_name(class="form-control", placeholder="Ex.: Felipe Welter") if form.full_name is defined else '' }}
+                </div>
+
+                <div class="col-md-3">
+                  <label class="form-label">Login</label>
+                  {% if mode=='new' %}
+                    {{ form.username(class="form-control", placeholder="ex: F.Welter") }}
+                  {% else %}
+                    <input class="form-control" value="{{ user.username }}" disabled>
+                  {% endif %}
+                </div>
+
+                <div class="col-md-3">
+                  <label class="form-label">Identidade</label>
+                  {{ form.identity(class="form-control", placeholder="RG/Identidade") if form.identity is defined else '' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acesso e Perfil -->
+          <div class="col-12">
+            <div class="card card-section shadow-sm">
+              <div class="card-header">
+                <strong>Acesso e Perfil</strong>
+              </div>
+              <div class="card-body row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Perfil</label>
+                  {{ form.role(class="form-select", id="role") }}
+                </div>
+
+                {% if form.active is defined %}
+                <div class="col-md-3 d-flex align-items-end">
+                  <div class="form-check">
+                    {{ form.active(class="form-check-input", id="active") }}
+                    <label for="active" class="form-check-label">Ativo</label>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Bloco de classes (só aparece se role=user) -->
+                <div class="col-md-6" id="classes-box">
+                  <label class="form-label">Classes com acesso</label>
+                  <div class="form-control" style="height:auto; background:rgba(0,0,0,0.35);">
+                    {% if form.classes is defined %}
+                      {% for subfield in form.classes %}
+                        <div class="form-check">
+                          {{ subfield(class_="form-check-input", id=subfield.id) }}
+                          <label for="{{ subfield.id }}" class="form-check-label">
+                            {{ subfield.label.text }}
+                          </label>
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-muted">Nenhuma classe configurada no formulário.</span>
+                    {% endif %}
+                  </div>
+                  <small class="text-muted">Visível apenas quando o perfil for "Usuário".</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Senha -->
+          <div class="col-12">
+            <div class="card card-section shadow-sm">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Senha</strong>
+                {% if mode != 'new' %}
+                  <button class="btn btn-sm btn-outline-secondary" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#pwdCollapse"
+                          aria-expanded="false" aria-controls="pwdCollapse">
+                    Alterar senha
+                  </button>
+                {% endif %}
+              </div>
+
+              <div class="card-body">
+                {% if mode=='new' %}
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Senha</label>
+                      {{ form.password(class="form-control", placeholder="Escolha uma senha forte") if form.password is defined else '' }}
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Confirmar senha</label>
+                      {{ form.confirm(class="form-control", placeholder="Repita a senha") if form.confirm is defined else '' }}
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="collapse" id="pwdCollapse">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label">Nova senha</label>
+                        {{ form.password(class="form-control", placeholder="Deixe em branco para manter") if form.password is defined else '' }}
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Confirmar nova senha</label>
+                        {{ form.confirm(class="form-control", placeholder="Repita a nova senha") if form.confirm is defined else '' }}
+                      </div>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                      Se não preencher, a senha atual será mantida.
+                    </small>
+                  </div>
+                  {% if not form.password is defined and not form.confirm is defined %}
+                    <small class="text-muted">A troca de senha é feita em outra tela.</small>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Ações -->
+          <div class="col-12 d-flex gap-2 justify-content-end">
+            <button class="btn btn-primary">
+              {{ 'Criar usuário' if mode=='new' else 'Salvar alterações' }}
+            </button>
+            <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">Voltar</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
   </div>
 </div>
-
-<form method="post" class="row g-4">
-  {{ form.csrf_token }}
-
-  <!-- Dados básicos -->
-  <div class="col-12">
-    <div class="card card-section shadow-sm">
-      <div class="card-header">
-        <strong>Informações básicas</strong>
-      </div>
-      <div class="card-body row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Nome completo</label>
-          {{ form.full_name(class="form-control", placeholder="Ex.: Felipe Welter") if form.full_name is defined else '' }}
-        </div>
-
-        <div class="col-md-3">
-          <label class="form-label">Login</label>
-          {% if mode=='new' %}
-            {{ form.username(class="form-control", placeholder="ex: F.Welter") }}
-          {% else %}
-            <input class="form-control" value="{{ user.username }}" disabled>
-          {% endif %}
-        </div>
-
-        <div class="col-md-3">
-          <label class="form-label">Identidade</label>
-          {{ form.identity(class="form-control", placeholder="RG/Identidade") if form.identity is defined else '' }}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Acesso e Perfil -->
-  <div class="col-12">
-    <div class="card card-section shadow-sm">
-      <div class="card-header">
-        <strong>Acesso e Perfil</strong>
-      </div>
-      <div class="card-body row g-3">
-        <div class="col-md-3">
-          <label class="form-label">Perfil</label>
-          {{ form.role(class="form-select", id="role") }}
-        </div>
-
-        {% if form.active is defined %}
-        <div class="col-md-3 d-flex align-items-end">
-          <div class="form-check">
-            {{ form.active(class="form-check-input", id="active") }}
-            <label for="active" class="form-check-label">Ativo</label>
-          </div>
-        </div>
-        {% endif %}
-
-        <!-- Bloco de classes (só aparece se role=user) -->
-        <div class="col-md-6" id="classes-box">
-          <label class="form-label">Classes com acesso</label>
-          <div class="form-control" style="height:auto;">
-            {% if form.classes is defined %}
-              {% for subfield in form.classes %}
-                <div class="form-check">
-                  {{ subfield(class_="form-check-input", id=subfield.id) }}
-                  <label for="{{ subfield.id }}" class="form-check-label">{{ subfield.label.text }}</label>
-                </div>
-              {% endfor %}
-            {% else %}
-              <span class="text-muted">Nenhuma classe configurada no formulário.</span>
-            {% endif %}
-          </div>
-          <small class="text-muted">Visível apenas quando o perfil for "Usuário".</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Senha -->
-  <div class="col-12">
-    <div class="card card-section shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>Senha</strong>
-        {% if mode != 'new' %}
-          <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#pwdCollapse" aria-expanded="false" aria-controls="pwdCollapse">
-            Alterar senha
-          </button>
-        {% endif %}
-      </div>
-
-      <div class="card-body">
-        {% if mode=='new' %}
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Senha</label>
-              {{ form.password(class="form-control", placeholder="Escolha uma senha forte") if form.password is defined else '' }}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Confirmar senha</label>
-              {{ form.confirm(class="form-control", placeholder="Repita a senha") if form.confirm is defined else '' }}
-            </div>
-          </div>
-        {% else %}
-          <div class="collapse" id="pwdCollapse">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nova senha</label>
-                {{ form.password(class="form-control", placeholder="Deixe em branco para manter") if form.password is defined else '' }}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Confirmar nova senha</label>
-                {{ form.confirm(class="form-control", placeholder="Repita a nova senha") if form.confirm is defined else '' }}
-              </div>
-            </div>
-            <small class="text-muted d-block mt-2">Se não preencher, a senha atual será mantida.</small>
-          </div>
-          {% if not form.password is defined and not form.confirm is defined %}
-            <small class="text-muted">A troca de senha é feita em outra tela.</small>
-          {% endif %}
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- Ações -->
-  <div class="col-12 d-flex gap-2">
-    <button class="btn btn-primary">{{ 'Criar usuário' if mode=='new' else 'Salvar alterações' }}</button>
-    <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">Voltar</a>
-  </div>
-</form>
 
 <script>
   function toggleClasses() {
     const roleEl = document.getElementById('role');
     if (!roleEl) return;
     const box = document.getElementById('classes-box');
+    if (!box) return;
     box.style.display = (roleEl.value === 'user') ? 'block' : 'none';
   }
+
   document.addEventListener('DOMContentLoaded', toggleClasses);
   const roleSelect = document.getElementById('role');
   if (roleSelect) roleSelect.addEventListener('change', toggleClasses);

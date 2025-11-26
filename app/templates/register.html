@@ -1,108 +1,210 @@
 {% extends "base.html" %}
 {% block title %}Criar Conta{% endblock %}
-{% block content %}
 
+{% block content %}
 <style>
-  .card-section { border-radius: .75rem; }
-  .avatar {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(13,110,253,.15); color:#0d6efd;
-    display:inline-flex; align-items:center; justify-content:center;
-    font-weight:600;
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
   }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.85));
+  }
+
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 950px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 15px 40px rgba(0,0,0,.6);
+    color: #fff;
+  }
+
+  .card-glass .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+  }
+
+  .card-glass .card-body {
+    padding: 24px;
+  }
+
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(13,110,253,.22);
+    color:#fff;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:700;
+    font-size: 1.1rem;
+  }
+
   .tiny { font-size: .9rem; }
-  .muted { color: #6c757d; }
+  .muted, .text-muted { color: #c9c9c9 !important; }
+
+  label.form-label {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .form-control {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #ffffff;
+  }
+  .form-control::placeholder {
+    color: #dddddd;
+  }
+  .form-control:focus {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.7);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(255,255,255,0.25);
+  }
+
+  .form-check-label {
+    color: #ffffff;
+  }
+
+  .btn-primary.btn-lg,
+  .btn-secondary.btn-lg {
+    min-width: 180px;
+  }
 </style>
 
-<div class="d-flex align-items-center gap-3 mb-3">
-  <div class="avatar" title="{{ (form.username.data or '') }}">
-    {{ (form.full_name.data or form.username.data or 'U')[:1]|upper }}
-  </div>
-  <div>
-    <h4 class="mb-0">Criar Conta</h4>
-    <small class="text-muted">Sua conta ficará pendente até aprovação do administrador.</small>
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <!-- Cabeçalho com avatar -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="avatar" title="{{ (form.username.data or '') }}">
+            {{ (form.full_name.data or form.username.data or 'U')[:1]|upper }}
+          </div>
+          <div>
+            <h4 class="mb-0 text-white">Criar Conta</h4>
+            <small class="text-muted">
+              Sua conta ficará pendente até aprovação do administrador.
+            </small>
+          </div>
+        </div>
+
+        <form method="post" class="row g-4" novalidate>
+          {{ form.csrf_token if form.csrf_token is defined }}
+
+          <!-- Dados de identificação -->
+          <div class="col-12">
+            <div class="card card-section shadow-sm bg-transparent border-0">
+              <div class="card-header px-0">
+                <strong>Informações básicas</strong>
+              </div>
+              <div class="card-body px-0 row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nome completo</label>
+                  {{ form.full_name(class="form-control", placeholder="Ex.: Felipe Ribeiro") }}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Login</label>
+                  {{ form.username(class="form-control", placeholder="ex: F.Welter") }}
+                  <small class="text-muted tiny">Será usado para entrar no sistema.</small>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Identidade</label>
+                  {{ form.identity(class="form-control", placeholder="RG/Identidade (opcional)") }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Senha -->
+          <div class="col-12">
+            <div class="card card-section shadow-sm bg-transparent border-0">
+              <div class="card-header px-0">
+                <strong>Senha</strong>
+              </div>
+              <div class="card-body px-0">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Senha</label>
+                    <div class="input-group">
+                      {{ form.password(class="form-control", id="pwd", placeholder="No mínimo 8 caracteres") }}
+                      <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('pwd', this)">Mostrar</button>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Confirmar senha</label>
+                    <div class="input-group">
+                      {{ form.confirm(class="form-control", id="pwd2", placeholder="Repita a senha") }}
+                      <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('pwd2', this)">Mostrar</button>
+                    </div>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-2">Guarde sua senha em local seguro.</small>
+              </div>
+            </div>
+          </div>
+
+<!-- Termos -->
+<div class="col-12">
+  <div class="card shadow-sm border-0"
+       style="background: rgba(0, 255, 90, 0.15); 
+              border-left: 4px solid rgba(0,255,90,0.6); 
+              border-radius: 12px;">
+
+    <div class="card-header"
+         style="border-bottom: 1px solid rgba(255,255,255,0.15); color:#caffda;">
+      <strong>Termos de uso</strong>
+    </div>
+
+    <div class="card-body">
+      <div class="form-check">
+        {{ form.accept(class="form-check-input", id="accept") }}
+        <label for="accept" class="form-check-label" style="color:#eafff0; font-weight:500;">
+          Declaro que as informações são verdadeiras e aceito os termos de uso.
+        </label>
+      </div>
+
+      <!-- Aviso de conta inativa destacado em vermelho -->
+      <small class="d-block mt-2"
+             style="color:#ff4d4d; font-weight:600; font-size: .92rem;">
+        ⚠ Sua conta será criada como <b>usuário</b> e ficará <b>INATIVA</b> até liberação do administrador.
+      </small>
+    </div>
+
   </div>
 </div>
 
-<form method="post" class="row g-4" novalidate>
-  {{ form.csrf_token if form.csrf_token is defined }}
 
-  <!-- Dados de identificação -->
-  <div class="col-12">
-    <div class="card card-section shadow-sm">
-      <div class="card-header">
-        <strong>Informações básicas</strong>
-      </div>
-      <div class="card-body row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Nome completo</label>
-          {{ form.full_name(class="form-control", placeholder="Ex.: Felipe Ribeiro ") }}
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Login</label>
-          {{ form.username(class="form-control", placeholder="ex: F.Welter") }}
-          <small class="text-muted tiny">Será usado para entrar no sistema.</small>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Identidade</label>
-          {{ form.identity(class="form-control", placeholder="RG/Identidade (opcional)") }}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Senha -->
-  <div class="col-12">
-    <div class="card card-section shadow-sm">
-      <div class="card-header">
-        <strong>Senha</strong>
-      </div>
-      <div class="card-body">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Senha</label>
-            <div class="input-group">
-              {{ form.password(class="form-control", id="pwd", placeholder="No mínimo 8 caracteres") }}
-              <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('pwd', this)">Mostrar</button>
-            </div>
+          <!-- Ações -->
+          <div class="col-12 d-flex gap-2 justify-content-end">
+            {{ form.submit(class="btn btn-primary btn-lg") }}
+            <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}">
+              Voltar ao Login
+            </a>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Confirmar senha</label>
-            <div class="input-group">
-              {{ form.confirm(class="form-control", id="pwd2", placeholder="Repita a senha") }}
-              <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('pwd2', this)">Mostrar</button>
-            </div>
-          </div>
-        </div>
-        <small class="text-muted d-block mt-2">Guarde sua senha em local seguro.</small>
+        </form>
+
       </div>
     </div>
-  </div>
 
-  <!-- Termos -->
-  <div class="col-12">
-    <div class="card card-section shadow-sm">
-      <div class="card-header">
-        <strong>Termos de uso</strong>
-      </div>
-      <div class="card-body">
-        <div class="form-check">
-          {{ form.accept(class="form-check-input", id="accept") }}
-          <label for="accept" class="form-check-label">
-            Declaro que as informações são verdadeiras e aceito os termos de uso.
-          </label>
-        </div>
-        <small class="text-muted d-block mt-1 tiny">A conta será criada como <b>usuário</b> e <b>inativa</b> até liberação do administrador.</small>
-      </div>
-    </div>
   </div>
-
-  <!-- Ações -->
-  <div class="col-12 d-flex gap-2">
-    {{ form.submit(class="btn btn-primary btn-lg") }}
-    <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}">Voltar ao Login</a>
-  </div>
-</form>
+</div>
 
 <script>
   function togglePwd(id, btn){

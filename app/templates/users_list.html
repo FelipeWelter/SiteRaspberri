@@ -1,157 +1,270 @@
 {% extends "base.html" %}
 {% block title %}Usuários{% endblock %}
-{% block content %}
 
+{% block content %}
 <style>
-  /* espaçamento visual entre badges das classes */
-  .cls-chip { margin-right: .25rem; margin-bottom: .25rem; }
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.85));
+  }
+
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 1300px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 15px 40px rgba(0,0,0,.6);
+    color: #fff;
+  }
+
+  .card-glass .card-header {
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color:#fff;
+  }
+
+  .card-glass .card-body {
+    padding: 1rem 1.25rem;
+  }
+
   /* avatar simples com iniciais */
   .avatar {
     width: 34px; height: 34px; border-radius: 50%;
-    background: rgba(13,110,253,.15); color:#0d6efd;
+    background: rgba(13,110,253,.25);
+    color:#fff;
     display:inline-flex; align-items:center; justify-content:center;
     font-weight:600;
   }
-  .table thead th { white-space: nowrap; }
+
+  .cls-chip { margin-right: .25rem; margin-bottom: .25rem; }
+
+  /* Busca */
+  .card-glass .form-control {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.35);
+    color:#fff;
+  }
+  .card-glass .form-control::placeholder { color:#d5d5d5; }
+  .card-glass .form-control:focus {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.7);
+    box-shadow: 0 0 10px rgba(255,255,255,0.25);
+    color:#fff;
+  }
+
+  /* Tabela super visível */
+  .table-users {
+    table-layout: fixed;
+    width: 100%;
+    background: #101010 !important;
+    color: #fff !important;
+  }
+
+  .table-users thead th {
+    white-space: nowrap;
+    background: #1c1c1c !important;
+    color:#fff !important;
+    font-weight:700;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+  }
+
+  .table-users tbody td {
+    background: #171717 !important;
+    color:#f5f5f5 !important;
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .table-users tbody tr:nth-child(even) td {
+    background:#1f1f1f !important;
+  }
+
+  .table-users tbody tr:hover td {
+    background:#2c2c2c !important;
+  }
+
+  .table-users td .text-muted { color:#c0c0c0 !important; }
+
+  /* Badges de classes com melhor contraste */
+  .badge.text-bg-light.border.cls-chip {
+    background: rgba(255,255,255,0.12) !important;
+    color:#fff !important;
+    border-color: rgba(255,255,255,0.35) !important;
+  }
+
+  /* Paginação (se usar depois) pode seguir esse estilo */
 </style>
 
-<div class="card shadow-sm">
-  <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
-    <div class="d-flex align-items-center gap-3">
-      <h5 class="mb-0">Usuários</h5>
-      <!-- Resumo rápido -->
-      <div class="d-none d-md-flex align-items-center gap-2">
-        <span class="badge text-bg-secondary">
-          Total:
-          {{ users|length }}
-        </span>
-        <span class="badge text-bg-danger">
-          Admin:
-          {{ users|selectattr('role','equalto','admin')|list|length }}
-        </span>
-        <span class="badge text-bg-info">
-          Acesso total:
-          {{ users|selectattr('role','equalto','all')|list|length }}
-        </span>
-        <span class="badge text-bg-success">
-          Ativos:
-          {{ users|selectattr('active')|list|length }}
-        </span>
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <!-- Cabeçalho -->
+      <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <h5 class="mb-0">Usuários</h5>
+          <!-- Resumo rápido -->
+          <div class="d-none d-md-flex align-items-center gap-2">
+            <span class="badge text-bg-secondary">
+              Total: {{ users|length }}
+            </span>
+            <span class="badge text-bg-danger">
+              Admin: {{ users|selectattr('role','equalto','admin')|list|length }}
+            </span>
+            <span class="badge text-bg-info">
+              Acesso total: {{ users|selectattr('role','equalto','all')|list|length }}
+            </span>
+            <span class="badge text-bg-success">
+              Ativos: {{ users|selectattr('active')|list|length }}
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-2 mt-md-0">
+          <a class="btn btn-success" href="{{ url_for('admin.users_new') }}">
+            + Novo Usuário
+          </a>
+        </div>
       </div>
+
+      <!-- Filtro -->
+      <div class="card-body border-bottom">
+        <form method="get" class="row g-2">
+          <div class="col-12 col-md-6 col-lg-4">
+            <input class="form-control" name="q"
+                   placeholder="Buscar por nome, login, identidade..."
+                   value="{{ q or '' }}">
+          </div>
+          <div class="col-12 col-md-auto">
+            <button class="btn btn-primary">Buscar</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabela -->
+      <div class="table-responsive">
+        <table class="table table-sm table-users align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width:48px;">#</th>
+              <th>Usuário</th>
+              <th>Identidade</th>
+              <th>Perfil</th>
+              <th>Classes</th>
+              <th>Ativo</th>
+              <th>Criado em</th>
+              <th style="width:230px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td class="text-muted">{{ u.id }}</td>
+
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar" title="{{ u.username }}">
+                    {{ (u.full_name or u.username)[:1] | upper }}
+                  </div>
+                  <div>
+                    <div class="fw-semibold">{{ u.full_name or '-' }}</div>
+                    <div class="small text-muted">@{{ u.username }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="text-nowrap">{{ u.identity or '-' }}</td>
+
+              <td>
+                {% set role = u.role %}
+                {% if role == 'admin' %}
+                  <span class="badge text-bg-danger">admin</span>
+                {% elif role == 'all' %}
+                  <span class="badge text-bg-info">all</span>
+                {% else %}
+                  <span class="badge text-bg-secondary">user</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if u.role in ['admin','all'] %}
+                  <span class="badge text-bg-dark cls-chip">(todas)</span>
+                {% else %}
+                  {% set cls = u.classes | map(attribute='classe') | list %}
+                  {% if cls %}
+                    {% for c in cls %}
+                      <span class="badge text-bg-light border cls-chip">{{ c }}</span>
+                    {% endfor %}
+                  {% else %}
+                    <span class="text-muted">-</span>
+                  {% endif %}
+                {% endif %}
+              </td>
+
+              <td>
+                {% if u.active %}
+                  <span class="badge text-bg-success">Sim</span>
+                {% else %}
+                  <span class="badge text-bg-secondary">Não</span>
+                {% endif %}
+              </td>
+
+              <td class="text-nowrap">
+                {{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}
+              </td>
+
+              <td class="text-nowrap">
+                <div class="btn-group">
+                  <a class="btn btn-sm btn-outline-primary"
+                     href="{{ url_for('admin.users_edit', id=u.id) }}"
+                     title="Editar">
+                    Editar
+                  </a>
+                  <a class="btn btn-sm btn-outline-warning"
+                     href="{{ url_for('admin.users_password', id=u.id) }}"
+                     title="Alterar senha">
+                    Senha
+                  </a>
+                  <form method="post"
+                        action="{{ url_for('admin.users_delete', id=u.id) }}"
+                        onsubmit="return confirm('Confirmar exclusão?')"
+                        style="display:inline-block; margin:0;">
+                    <button class="btn btn-sm btn-outline-danger" title="Excluir">
+                      Excluir
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="8" class="text-center text-muted py-4">
+                Nenhum usuário encontrado
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
     </div>
 
-    <div class="mt-2 mt-md-0">
-      <a class="btn btn-success" href="{{ url_for('admin.users_new') }}">
-        + Novo Usuário
-      </a>
-    </div>
-  </div>
-
-  <div class="card-body border-bottom">
-    <form method="get" class="row g-2">
-      <div class="col-12 col-md-6 col-lg-4">
-        <input class="form-control" name="q" placeholder="Buscar por nome, login, identidade..." value="{{ q or '' }}">
-      </div>
-      <div class="col-12 col-md-auto">
-        <button class="btn btn-primary">Buscar</button>
-      </div>
-    </form>
-  </div>
-
-  <div class="table-responsive">
-    <table class="table table-sm table-striped align-middle mb-0">
-      <thead class="table-dark">
-        <tr>
-          <th style="width:48px;">#</th>
-          <th>Usuário</th>
-          <th>Identidade</th>
-          <th>Perfil</th>
-          <th>Classes</th>
-          <th>Ativo</th>
-          <th>Criado em</th>
-          <th style="width:230px;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for u in users %}
-        <tr>
-          <td class="text-muted">{{ u.id }}</td>
-
-          <td>
-            <div class="d-flex align-items-center gap-2">
-              <div class="avatar" title="{{ u.username }}">
-                {{ (u.full_name or u.username)[:1] | upper }}
-              </div>
-              <div>
-                <div class="fw-semibold">{{ u.full_name or '-' }}</div>
-                <div class="small text-muted">@{{ u.username }}</div>
-              </div>
-            </div>
-          </td>
-
-          <td class="text-nowrap">{{ u.identity or '-' }}</td>
-
-          <td>
-            {% set role = u.role %}
-            {% if role == 'admin' %}
-              <span class="badge text-bg-danger">admin</span>
-            {% elif role == 'all' %}
-              <span class="badge text-bg-info">all</span>
-            {% else %}
-              <span class="badge text-bg-secondary">user</span>
-            {% endif %}
-          </td>
-
-          <td>
-            {% if u.role in ['admin','all'] %}
-              <span class="badge text-bg-dark cls-chip">(todas)</span>
-            {% else %}
-              {% set cls = u.classes | map(attribute='classe') | list %}
-              {% if cls %}
-                {% for c in cls %}
-                  <span class="badge text-bg-light border cls-chip">{{ c }}</span>
-                {% endfor %}
-              {% else %}
-                <span class="text-muted">-</span>
-              {% endif %}
-            {% endif %}
-          </td>
-
-          <td>
-            {% if u.active %}
-              <span class="badge text-bg-success">Sim</span>
-            {% else %}
-              <span class="badge text-bg-secondary">Não</span>
-            {% endif %}
-          </td>
-
-          <td class="text-nowrap">
-            {{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '-' }}
-          </td>
-
-          <td class="text-nowrap">
-            <div class="btn-group">
-              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.users_edit', id=u.id) }}" title="Editar">
-                Editar
-              </a>
-              <a class="btn btn-sm btn-outline-warning" href="{{ url_for('admin.users_password', id=u.id) }}" title="Alterar senha">
-                Senha
-              </a>
-              <form method="post" action="{{ url_for('admin.users_delete', id=u.id) }}" onsubmit="return confirm('Confirmar exclusão?')" style="display:inline-block; margin:0;">
-                <button class="btn btn-sm btn-outline-danger" title="Excluir">Excluir</button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="8" class="text-center text-muted py-4">
-            Nenhum usuário encontrado
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
   </div>
 </div>
 
