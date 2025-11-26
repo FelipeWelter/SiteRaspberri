@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% block title %}Política de Privacidade{% endblock %}
+
+{% block content %}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.85));
+  }
+
+  .dash-container {
+    position: relative;
+    width: 100%;
+    max-width: 980px;
+  }
+
+  .card-glass {
+    background: rgba(20,20,20,0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 15px 40px rgba(0,0,0,.65);
+    color: #fff;
+  }
+
+  .card-glass .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+  }
+
+  .card-glass .card-body {
+    padding: 24px;
+  }
+
+  .terms-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+
+  .terms-scroll h5 {
+    margin-top: 1.25rem;
+    font-size: 1.02rem;
+    color: #c8f5ff;
+  }
+
+  .terms-scroll h6 {
+    margin-top: 1rem;
+    font-size: .98rem;
+    color: #d4f0ff;
+  }
+
+  .terms-scroll p,
+  .terms-scroll li {
+    font-size: .95rem;
+    color: #e5e5e5;
+  }
+
+  .terms-scroll small {
+    font-size: .85rem;
+    color: #bdbdbd;
+  }
+
+  .badge-updated {
+    font-size: .75rem;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(13,110,253,.18);
+    border: 1px solid rgba(13,110,253,.45);
+    color: #d1e7ff;
+  }
+
+  .back-link a {
+    color: #9ad0ff;
+    text-decoration: none;
+  }
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+
+    <div class="card card-glass">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <h4 class="mb-0">Política de Privacidade</h4>
+          <small class="text-white">
+            Entenda como seus dados são coletados, utilizados e protegidos.
+          </small>
+        </div>
+        <span class="badge-updated">
+          Última atualização: 26/11/2025
+        </span>
+      </div>
+
+      <div class="card-body">
+
+        <div class="terms-scroll">
+          <p>
+            Esta Política de Privacidade descreve como o 
+            <strong>SISTEMA DE CONTROLE DE MATERIAL</strong>, desenvolvido e mantido por 
+            <strong>Felipe Ribeiro S. Welter</strong>, coleta, utiliza, armazena, protege e trata 
+            os dados dos usuários durante o uso da plataforma.
+          </p>
+          <p>
+            Ao acessar ou utilizar o sistema, o usuário declara ter lido, compreendido e concordado integralmente 
+            com esta Política de Privacidade.
+          </p>
+
+          <h5>1. Introdução</h5>
+          <p>
+            Esta Política tem como objetivo informar, de forma clara e transparente, quais dados são tratados, 
+            para quais finalidades e quais medidas de segurança são adotadas para proteção das informações.
+          </p>
+
+          <h5>2. Dados Coletados</h5>
+          <p>O sistema pode coletar e armazenar os seguintes tipos de dados:</p>
+
+          <h6 class="mt-3">2.1 Dados fornecidos pelo usuário</h6>
+          <ul>
+            <li>Nome completo;</li>
+            <li>Identificação (RG, identidade militar ou similar);</li>
+            <li>Login e senha;</li>
+            <li>Informações inseridas em formulários internos do sistema.</li>
+          </ul>
+
+          <h6 class="mt-3">2.2 Dados coletados automaticamente</h6>
+          <ul>
+            <li>Endereço IP;</li>
+            <li>Navegador utilizado;</li>
+            <li>Datas e horários de acesso;</li>
+            <li>Ações realizadas no sistema (logs);</li>
+            <li>Informações de uso e comportamento dentro da plataforma.</li>
+          </ul>
+
+          <h6 class="mt-3">2.3 Dados sensíveis</h6>
+          <p>
+            O sistema não coleta, de forma intencional, dados sensíveis como informações de saúde, 
+            crenças religiosas, orientação sexual ou qualquer outra categoria protegida, 
+            exceto se houver exigência específica de normas internas da organização responsável pelo sistema.
+          </p>
+
+          <h5>3. Finalidades do Tratamento de Dados</h5>
+          <p>Os dados coletados são utilizados para:</p>
+          <ul>
+            <li>Gerenciar contas de usuários e permissões de acesso;</li>
+            <li>Registrar ações para fins de auditoria e segurança;</li>
+            <li>Permitir o funcionamento adequado das funcionalidades do sistema;</li>
+            <li>Controlar o acesso, movimentação e registro de materiais;</li>
+            <li>Melhorar a estabilidade, performance e integridade da plataforma;</li>
+            <li>Cumprir obrigações legais, administrativas ou de segurança institucional.</li>
+          </ul>
+
+          <h5>4. Compartilhamento de Dados</h5>
+          <p>
+            Os dados poderão ser compartilhados somente nas seguintes situações:
+          </p>
+          <ul>
+            <li>Para atendimento a determinações legais, judiciais ou administrativas;</li>
+            <li>Com setores internos autorizados da organização responsável pelo sistema;</li>
+            <li>Para auditorias internas ou externas, quando aplicável;</li>
+            <li>Quando estritamente necessário para manutenção, suporte técnico ou segurança do sistema.</li>
+          </ul>
+          <p>
+            Os dados não serão vendidos, alugados ou repassados a terceiros não autorizados.
+          </p>
+
+          <h5>5. Armazenamento e Segurança dos Dados</h5>
+          <p>
+            São adotadas medidas técnicas e administrativas para proteção dos dados pessoais, tais como:
+          </p>
+          <ul>
+            <li>Armazenamento em base de dados protegida;</li>
+            <li>Controle de permissões de acesso por perfil de usuário;</li>
+            <li>Registro de logs de acesso e ações relevantes;</li>
+            <li>Criptografia de senhas no banco de dados;</li>
+            <li>Atualizações e correções de segurança sempre que possível.</li>
+          </ul>
+          <p>
+            Apesar dos esforços, nenhum sistema é completamente invulnerável, 
+            e não é possível garantir segurança absoluta contra todos os tipos de incidentes.
+          </p>
+
+          <h5>6. Retenção dos Dados</h5>
+          <p>
+            Os dados serão armazenados pelo tempo necessário para:
+          </p>
+          <ul>
+            <li>Manter o funcionamento regular do sistema;</li>
+            <li>Atender aos objetivos de controle e registro de materiais;</li>
+            <li>Cumprir obrigações legais e regulatórias.</li>
+          </ul>
+          <p>
+            Mesmo após o encerramento de uma conta, alguns registros e logs poderão ser mantidos 
+            para fins de auditoria, segurança e cumprimento de obrigações legais.
+          </p>
+
+          <h5>7. Direitos do Usuário</h5>
+          <p>O usuário possui, entre outros, os seguintes direitos em relação aos seus dados pessoais:</p>
+          <ul>
+            <li>Solicitar acesso às informações que lhe dizem respeito;</li>
+            <li>Requerer a correção de dados incompletos, inexatos ou desatualizados;</li>
+            <li>Solicitar esclarecimentos sobre a forma de tratamento dos dados;</li>
+            <li>
+              Requerer a exclusão da conta, quando permitido pela organização, 
+              observadas as obrigações legais e de auditoria.
+            </li>
+          </ul>
+          <p>
+            Alguns pedidos poderão não ser atendidos integralmente quando houver 
+            necessidade de preservação de registros por motivos legais ou institucionais.
+          </p>
+
+          <h5>8. Uso de Cookies</h5>
+          <p>
+            O sistema pode utilizar cookies estritamente necessários para:
+          </p>
+          <ul>
+            <li>Manter sessões de login ativas;</li>
+            <li>Garantir funcionalidades essenciais de navegação;</li>
+            <li>Melhorar a experiência de uso dentro da própria aplicação.</li>
+          </ul>
+          <p>
+            Não são utilizados cookies para fins de publicidade ou rastreamento externo a este sistema.
+          </p>
+
+          <h5>9. Alterações nesta Política de Privacidade</h5>
+          <p>
+            Esta Política poderá ser atualizada periodicamente, para refletir melhorias no sistema 
+            ou adequações a normas internas e legislações aplicáveis.
+          </p>
+          <p>
+            Recomenda-se que o usuário consulte esta página regularmente. O uso contínuo do sistema 
+            após alterações será interpretado como concordância com a versão atualizada.
+          </p>
+
+          <h5>10. Contato</h5>
+          <p>
+            Em caso de dúvidas, solicitações ou esclarecimentos relacionados a esta Política de Privacidade, 
+            utilize o canal oficial:
+          </p>
+          <ul>
+            <li><strong>E-mail:</strong> codewelter@gmail.com</li>
+            <li><strong>Responsável:</strong> Felipe Ribeiro – 3º Sgt</li>
+          </ul>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between align-items-center back-link">
+          <small class="text-white">
+            Ao continuar utilizando o sistema, você declara que leu e concorda com esta Política de Privacidade.
+          </small>
+          <a href="{{ url_for('auth.register') }}">
+            ↩ Voltar para a criação de conta
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.querySelector(".terms-scroll");
+  if (!box) return;
+
+  box.addEventListener("scroll", () => {
+    if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
+      // Marca que o usuário leu até o fim da política
+      localStorage.politica_lida = "ok";
+    }
+  });
+});
+</script>
+
+{% endblock %}

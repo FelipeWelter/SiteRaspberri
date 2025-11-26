@@ -160,43 +160,45 @@
             </div>
           </div>
 
-<!-- Termos -->
-<div class="col-12">
-  <div class="card shadow-sm border-0"
-       style="background: rgba(0, 255, 90, 0.15); 
-              border-left: 4px solid rgba(0,255,90,0.6); 
-              border-radius: 12px;">
+          <!-- Termos + Privacidade -->
+          <div class="col-12">
+            <div class="card shadow-sm border-0"
+                 style="background: rgba(0, 255, 90, 0.15); 
+                        border-left: 4px solid rgba(0,255,90,0.6); 
+                        border-radius: 12px;">
 
-    <div class="card-header"
-         style="border-bottom: 1px solid rgba(255,255,255,0.15); color:#caffda;">
-      <strong>Termos de uso</strong>
-    </div>
+              <div class="card-header"
+                   style="border-bottom: 1px solid rgba(255,255,255,0.15); color:#caffda;">
+                <strong>Termos e Privacidade</strong>
+              </div>
 
-    <div class="card-body">
-      <div class="form-check">
-        {{ form.accept(class="form-check-input", id="accept") }}
+              <div class="card-body">
 
-        <label for="accept" class="form-check-label" style="color:#eafff0; font-weight:500;">
-          Declaro que as informações são verdadeiras e aceito os 
-          <a href="{{ url_for('main.termos') }}" target="_blank" 
-             style="color:#7dffa4; text-decoration: underline;">
-            Termos de Uso
-          </a>.
-        </label>
+                <div class="form-check">
+                  {{ form.accept(class="form-check-input", id="accept") }}
 
-      </div>
+                  <label for="accept" class="form-check-label" style="color:#eafff0; font-weight:500;">
+                    Declaro que as informações são verdadeiras e aceito os 
+                    <a href="{{ url_for('main.termos') }}" target="_blank"
+                       style="color:#7dffa4; text-decoration: underline;">
+                      Termos de Uso
+                    </a>
+                    e a 
+                    <a href="{{ url_for('main.politica_privacidade') }}" target="_blank"
+                       style="color:#7dffa4; text-decoration: underline;">
+                      Política de Privacidade
+                    </a>.
+                  </label>
+                </div>
 
-      <!-- Aviso de conta inativa destacado em vermelho -->
-      <small class="d-block mt-2"
-             style="color:#ff4d4d; font-weight:600; font-size: .92rem;">
-        ⚠ Sua conta será criada como <b>usuário</b> e ficará <b>INATIVA</b> até liberação do administrador.
-      </small>
-    </div>
+                <small class="d-block mt-2"
+                       style="color:#ff4d4d; font-weight:600; font-size: .92rem;">
+                  ⚠ Sua conta será criada como <b>usuário</b> e ficará <b>INATIVA</b> até liberação do administrador.
+                </small>
+              </div>
 
-  </div>
-</div>
-
-
+            </div>
+          </div>
 
           <!-- Ações -->
           <div class="col-12 d-flex gap-2 justify-content-end">
@@ -217,16 +219,46 @@
   function togglePwd(id, btn){
     const i = document.getElementById(id);
     if(!i) return;
-    if(i.type === 'password'){ i.type = 'text'; btn.textContent = 'Ocultar'; }
-    else { i.type = 'password'; btn.textContent = 'Mostrar'; }
+    if(i.type === 'password'){ 
+      i.type = 'text'; 
+      btn.textContent = 'Ocultar'; 
+    }
+    else { 
+      i.type = 'password'; 
+      btn.textContent = 'Mostrar'; 
+    }
   }
 
-  // bloqueia submit se termos não marcados (reforço visual; a validação do servidor continua valendo)
+  // Libera a checkbox de aceite só depois de ler Termos e Política
   document.addEventListener('DOMContentLoaded', () => {
     const accept = document.getElementById('accept');
-    const submitBtn = document.querySelector('button[type="submit"]');
-    const toggle = () => { if(submitBtn) submitBtn.disabled = !accept.checked; };
-    if(accept) { toggle(); accept.addEventListener('change', toggle); }
+    const submitBtn = document.querySelector('button[type="submit"], input[type="submit"]');
+
+    if (!accept || !submitBtn) return;
+
+    // estado inicial: tudo travado
+    accept.disabled = true;
+    submitBtn.disabled = true;
+
+    function checkUnlock() {
+      const termosOk = (localStorage.termos_lido === 'ok');
+      const politicaOk = (localStorage.politica_lida === 'ok');
+
+      if (termosOk && politicaOk) {
+        accept.disabled = false;
+      } else {
+        accept.disabled = true;
+        accept.checked = false;
+      }
+
+      submitBtn.disabled = accept.disabled || !accept.checked;
+    }
+
+    accept.addEventListener('change', checkUnlock);
+
+    // checa periodicamente (caso ele leia em outra aba/janela)
+    setInterval(checkUnlock, 1000);
+    checkUnlock();
   });
 </script>
 

@@ -24,3 +24,7 @@ def healthz():
 @bp.route("/termos")
 def termos():
     return render_template("termos.html")
+
+@bp.route("/politica-privacidade")
+def politica_privacidade():
+    return render_template("politica.html")

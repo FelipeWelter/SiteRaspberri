@@ -16,7 +16,7 @@
   <body class="bg-light">
 
     <!-- Navbar principal -->
-     {% if request.endpoint != 'auth.login' %}
+    {% if request.endpoint != 'auth.login' %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">4ª Seção</a>
@@ -52,14 +52,39 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.') %}active{% endif %}"
+              <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.') %}active{% endif %}"
                  href="{{ url_for('admin.users_list') }}">Usuários</a>
             </li>
             
           </ul>
-          <div class="d-flex">
+
+          <!-- Botão Documentos + Sair -->
+          <div class="d-flex align-items-center gap-2">
+
+            <!-- Dropdown de documentos -->
+            <div class="dropdown">
+              <button class="btn btn-outline-light btn-sm dropdown-toggle"
+                      type="button" id="docsDropdown"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                Documentos
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="docsDropdown">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.termos') }}" target="_blank">
+                    Termos de Uso
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('main.politica_privacidade') }}" target="_blank">
+                    Política de Privacidade
+                  </a>
+                </li>
+              </ul>
+            </div>
+
             <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Sair</a>
           </div>
+
         </div>
       </div>
     </nav>
