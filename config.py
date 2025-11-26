@@ -4,9 +4,9 @@ from datetime import timedelta
 
 class Config:
     # 🔑 
-    APPLICATION_ROOT = '/clsite'
+    APPLICATION_ROOT = os.getenv('APPLICATION_ROOT', '/')
     SECRET_KEY = "22107dd3d6ca53feda551ef8e6bfbeb02b4681e975bae7daf52b65e2ed40386a"
-    SESSION_COOKIE_PATH = '/clsite'
+    SESSION_COOKIE_PATH = os.getenv('SESSION_COOKIE_PATH', '/')
 
     # Banco SQLite na pasta instance/
     SQLALCHEMY_DATABASE_URI = "sqlite:///site.db"
