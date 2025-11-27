@@ -71,11 +71,39 @@ class CL1(db.Model):
     tipo = db.Column(db.String(10), nullable=False)  # RA, R2, R3
     quantidade = db.Column(db.Integer, nullable=False)
     validade = db.Column(db.Date, nullable=False)
+    cardapio1 = db.Column(db.Text)
+    cardapio2 = db.Column(db.Text)
+    cardapio3 = db.Column(db.Text)
+    cardapio4 = db.Column(db.Text)
+    menu_atual = db.Column(db.String(20))
+    lote = db.Column(db.String(120))
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    logs = db.relationship(
+        "CL1Log",
+        backref="cl1",
+        cascade="all, delete-orphan",
+        order_by="desc(CL1Log.criado_em)",
+    )
+
     def __repr__(self):
         return f"<CL1 {self.tipo} - {self.quantidade} - {self.validade}>"
+
+
+class CL1Log(db.Model):
+    __tablename__ = "cl1_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    cl1_id = db.Column(
+        db.Integer, db.ForeignKey("cl1.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_name = db.Column(db.String(120))
+    motivo = db.Column(db.Text, nullable=False)
+    dados_antes = db.Column(db.JSON)
+    dados_depois = db.Column(db.JSON)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
 
 class CL2(db.Model):
     __tablename__ = "cl2"

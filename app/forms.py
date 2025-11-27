@@ -18,9 +18,24 @@ class CL1Form(FlaskForm):
     )
     quantidade = IntegerField("Quantidade", validators=[DataRequired()])
     validade = DateField("Data de Validade", format="%Y-%m-%d", validators=[DataRequired()])
+    cardapio1 = TextAreaField("Cardápio 1", validators=[Optional(), Length(max=2000)])
+    cardapio2 = TextAreaField("Cardápio 2", validators=[Optional(), Length(max=2000)])
+    cardapio3 = TextAreaField("Cardápio 3", validators=[Optional(), Length(max=2000)])
+    cardapio4 = TextAreaField("Cardápio 4", validators=[Optional(), Length(max=2000)])
+    menu_atual = SelectField(
+        "Cardápio escolhido",
+        choices=[
+            ("1", "Cardápio 1"),
+            ("2", "Cardápio 2"),
+            ("3", "Cardápio 3"),
+            ("4", "Cardápio 4"),
+        ],
+        validators=[DataRequired()],
+        default="1",
+    )
+    lote = StringField("Lote", validators=[Optional(), Length(max=120)])
+    motivo_edicao = TextAreaField("Motivo da edição", validators=[Optional(), Length(max=500)])
     submit = SubmitField("Salvar")
-
-
 
 # ----------------- CL2 -----------------
 class CL2Form(FlaskForm):

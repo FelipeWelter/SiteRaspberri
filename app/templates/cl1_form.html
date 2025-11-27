@@ -76,26 +76,81 @@
         <h3>{{ title }}</h3>
 
         <form method="post">
-          {{ form.csrf_token }}
+            {{ form.csrf_token }}
 
-          <div class="mb-3">
-            {{ form.tipo.label }}
-            {{ form.tipo(class="form-control") }}
-          </div>
+            <div class="mb-3">
+              {{ form.tipo.label }}
+              {{ form.tipo(class="form-control") }}
+            </div>
 
-          <div class="mb-3">
-            {{ form.quantidade.label }}
-            {{ form.quantidade(class="form-control") }}
-          </div>
+            <div class="mb-3">
+              {{ form.quantidade.label }}
+              {{ form.quantidade(class="form-control") }}
+            </div>
 
-          <div class="mb-3">
-            {{ form.validade.label }}
-            {{ form.validade(class="form-control") }}
-          </div>
+            <div class="mb-3">
+              {{ form.validade.label }}
+              {{ form.validade(class="form-control") }}
+            </div>
 
-          <button type="submit" class="btn btn-success w-100 mb-2">Salvar</button>
-          <a href="{{ url_for('inv.cl1_list') }}" class="btn btn-secondary w-100">Cancelar</a>
-        </form>
+            <div class="mb-3">
+              {{ form.lote.label }}
+              {{ form.lote(class="form-control") }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.menu_atual.label }}
+              {{ form.menu_atual(class="form-control") }}
+              <small class="form-text text-light">Selecione qual cardápio está sendo usado para essa quantidade.</small>
+            </div>
+
+            <div class="mb-3 cardapio-field" data-cardapio="1">
+              {{ form.cardapio1.label }}
+              {{ form.cardapio1(class="form-control", rows=2) }}
+            </div>
+
+            <div class="mb-3 cardapio-field" data-cardapio="2">
+              {{ form.cardapio2.label }}
+              {{ form.cardapio2(class="form-control", rows=2) }}
+            </div>
+
+            <div class="mb-3 cardapio-field" data-cardapio="3">
+              {{ form.cardapio3.label }}
+              {{ form.cardapio3(class="form-control", rows=2) }}
+            </div>
+
+            <div class="mb-3 cardapio-field" data-cardapio="4">
+              {{ form.cardapio4.label }}
+              {{ form.cardapio4(class="form-control", rows=2) }}
+            </div>
+
+            {% if mode == 'edit' %}
+            <div class="mb-3">
+              {{ form.motivo_edicao.label }}
+              {{ form.motivo_edicao(class="form-control", rows=3, required=true) }}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-success w-100 mb-2">Salvar</button>
+            <a href="{{ url_for('inv.cl1_list') }}" class="btn btn-secondary w-100">Cancelar</a>
+          </form>
+
+          <script>
+            (function() {
+              const select = document.getElementById('{{ form.menu_atual.id }}');
+              const fields = document.querySelectorAll('.cardapio-field');
+
+              function toggleCardapios() {
+                const value = select.value;
+                fields.forEach(el => {
+                  el.style.display = (el.dataset.cardapio === value) ? 'block' : 'none';
+                });
+              }
+
+              select.addEventListener('change', toggleCardapios);
+              toggleCardapios();
+            })();
+          </script>
 
       </div>
     </div>

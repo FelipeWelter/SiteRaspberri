@@ -93,27 +93,41 @@
 
         <div class="table-responsive">
           <table class="table table-glass">
-            <thead>
-              <tr>
-                <th>Tipo</th>
-                <th>Quantidade</th>
-                <th>Validade</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for r in rows %}
-              <tr>
-                <td>{{ r.tipo }}</td>
-                <td>{{ r.quantidade }}</td>
-                <td>{{ r.validade.strftime('%d/%m/%Y') }}</td>
-                <td>
-                  <a class="btn btn-sm btn-primary" href="{{ url_for('inv.cl1_edit', id=r.id) }}">Editar</a>
-                  <form method="post" action="{{ url_for('inv.cl1_delete', id=r.id) }}" style="display:inline;">
-                    <button class="btn btn-sm btn-danger" onclick="return confirm('Remover este item?')">Excluir</button>
-                  </form>
-                </td>
-              </tr>
+             <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Lote</th>
+                  <th>Cardápio</th>
+                  <th>Validade</th>
+                  <th>Quantidade</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in rows %}
+                <tr>
+                  <td>{{ r.tipo }}</td>
+                  <td>{{ r.lote or '-' }}</td>
+                  <td>
+                    {% set cardapios = {'1': r.cardapio1, '2': r.cardapio2, '3': r.cardapio3, '4': r.cardapio4} %}
+                    {% set texto = cardapios.get(r.menu_atual) %}
+                    {% if r.menu_atual in ['1','2','3','4'] %}
+                      <strong>Cardápio {{ r.menu_atual }}</strong><br>
+                      <small>{{ texto or 'Sem descrição' }}</small>
+                    {% else %}
+                      {{ r.menu_atual or '-' }}
+                    {% endif %}
+                  </td>
+                  <td>{{ r.validade.strftime('%d/%m/%Y') }}</td>
+                  <td>{{ r.quantidade }}</td>
+                  <td>
+                    <a class="btn btn-sm btn-primary" href="{{ url_for('inv.cl1_edit', id=r.id) }}">Editar</a>
+                    <a class="btn btn-sm btn-info" href="{{ url_for('inv.cl1_logs', id=r.id) }}">Histórico</a>
+                    <form method="post" action="{{ url_for('inv.cl1_delete', id=r.id) }}" style="display:inline;">
+                      <button class="btn btn-sm btn-danger" onclick="return confirm('Remover este item?')">Excluir</button>
+                    </form>
+                  </td>
+                </tr>
               {% endfor %}
             </tbody>
           </table>

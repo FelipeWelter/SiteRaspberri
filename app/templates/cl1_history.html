@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Histórico - CL1{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Histórico de alterações - CL1 #{{ item.id }} ({{ item.tipo }})</h3>
+    <a class="btn btn-secondary" href="{{ url_for('inv.cl1_list') }}">Voltar</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Usuário</th>
+            <th>Motivo</th>
+            <th>Antes</th>
+            <th>Depois</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.criado_em.strftime('%d/%m/%Y %H:%M') if log.criado_em else '-' }}</td>
+            <td>{{ log.user_name or 'N/D' }}</td>
+            <td>{{ log.motivo }}</td>
+            <td><pre class="mb-0 small">{{ log.dados_antes | tojson(indent=2) }}</pre></td>
+            <td><pre class="mb-0 small">{{ log.dados_depois | tojson(indent=2) }}</pre></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center">Nenhum registro de histórico encontrado.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

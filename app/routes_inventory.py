@@ -1,5 +1,6 @@
 # app/routes_inventory.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, make_response
+from flask_login import current_user
 from sqlalchemy import func, or_, case
 from datetime import datetime
 from reportlab.lib.pagesizes import A4, landscape
@@ -10,7 +11,7 @@ from reportlab.lib.units import mm
 import io
 
 from .utils import class_required  # segue vindo do utils.py
-from .models import db, CL2, CL6, CL7, CL1
+from .models import db, CL2, CL6, CL7, CL1, CL1Log
 from .forms import CL2Form, CL6Form, CL7Form, CL1Form
 
 bp = Blueprint("inv", __name__, url_prefix="/inv")
@@ -47,12 +48,18 @@ def cl1_new():
             tipo=form.tipo.data,
             quantidade=form.quantidade.data,
             validade=form.validade.data,
+            cardapio1=form.cardapio1.data,
+            cardapio2=form.cardapio2.data,
+            cardapio3=form.cardapio3.data,
+            cardapio4=form.cardapio4.data,
+            menu_atual=form.menu_atual.data,
+            lote=form.lote.data,
         )
         db.session.add(item)
         db.session.commit()
         flash("Ração cadastrada com sucesso!", "success")
         return redirect(url_for("inv.cl1_list"))
-    return render_template("cl1_form.html", form=form, title="Nova Ração")
+    return render_template("cl1_form.html", form=form, title="Nova Ração", mode="new")
 
 # Editar
 @bp.route("/cl1/<int:id>/edit", methods=["GET", "POST"], endpoint="cl1_edit")
@@ -60,14 +67,64 @@ def cl1_new():
 def cl1_edit(id):
     item = CL1.query.get_or_404(id)
     form = CL1Form(obj=item)
+    if request.method == "GET" and (
+        not item.menu_atual or item.menu_atual not in [c[0] for c in form.menu_atual.choices]
+    ):
+        form.menu_atual.data = form.menu_atual.default
     if form.validate_on_submit():
+        if not form.motivo_edicao.data:
+            flash("Informe o motivo da edição.", "warning")
+            return render_template("cl1_form.html", form=form, title="Editar Ração", mode="edit")
+
+        snapshot_antes = {
+            "tipo": item.tipo,
+            "quantidade": item.quantidade,
+            "validade": item.validade.isoformat() if item.validade else None,
+            "cardapio1": item.cardapio1,
+            "cardapio2": item.cardapio2,
+            "cardapio3": item.cardapio3,
+            "cardapio4": item.cardapio4,
+            "menu_atual": item.menu_atual,
+            "lote": item.lote,
+        }
+
         item.tipo = form.tipo.data
         item.quantidade = form.quantidade.data
         item.validade = form.validade.data
+        item.cardapio1 = form.cardapio1.data
+        item.cardapio2 = form.cardapio2.data
+        item.cardapio3 = form.cardapio3.data
+        item.cardapio4 = form.cardapio4.data
+        item.menu_atual = form.menu_atual.data
+        item.lote = form.lote.data
+
+        snapshot_depois = {
+            "tipo": item.tipo,
+            "quantidade": item.quantidade,
+            "validade": item.validade.isoformat() if item.validade else None,
+            "cardapio1": item.cardapio1,
+            "cardapio2": item.cardapio2,
+            "cardapio3": item.cardapio3,
+            "cardapio4": item.cardapio4,
+            "menu_atual": item.menu_atual,
+            "lote": item.lote,
+        }
+
+        log_entry = CL1Log(
+            cl1=item,
+            user_id=current_user.id if current_user and current_user.is_authenticated else None,
+            user_name=(current_user.full_name or current_user.username)
+            if current_user and current_user.is_authenticated
+            else None,
+            motivo=form.motivo_edicao.data,
+            dados_antes=snapshot_antes,
+            dados_depois=snapshot_depois,
+        )
+        db.session.add(log_entry)
         db.session.commit()
         flash("Ração atualizada com sucesso!", "success")
         return redirect(url_for("inv.cl1_list"))
-    return render_template("cl1_form.html", form=form, title="Editar Ração")
+    return render_template("cl1_form.html", form=form, title="Editar Ração", mode="edit")
 
 # Deletar
 @bp.post("/cl1/<int:id>/delete", endpoint="cl1_delete")
@@ -78,6 +135,18 @@ def cl1_delete(id):
     db.session.commit()
     flash("Ração removida com sucesso!", "success")
     return redirect(url_for("inv.cl1_list"))
+
+
+@bp.get("/cl1/<int:id>/logs", endpoint="cl1_logs")
+@class_required("CL1")
+def cl1_logs(id):
+    item = CL1.query.get_or_404(id)
+    logs = (
+        CL1Log.query.filter_by(cl1_id=id)
+        .order_by(CL1Log.criado_em.desc())
+        .all()
+    )
+    return render_template("cl1_history.html", item=item, logs=logs)
 
 
 # CL2 =====================================================================================
