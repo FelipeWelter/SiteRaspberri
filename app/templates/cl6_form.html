@@ -102,6 +102,11 @@ select option {
         <form method="post" class="row g-3">
           {{ form.csrf_token }}
 
+          <div class="col-md-6">
+            {{ form.material.label(class="form-label") }}
+            {{ form.material(class="form-control") }}
+          </div>
+
           <div class="col-md-3">
             {{ form.situacao_patrimonial.label(class="form-label") }}
             {{ form.situacao_patrimonial(class="form-select") }}

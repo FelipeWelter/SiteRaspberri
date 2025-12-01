@@ -51,6 +51,7 @@ class CL2Form(FlaskForm):
 
 # ----------------- CL6 ----------------- NOVO
 class CL6Form(FlaskForm):
+    material = StringField("Material", validators=[DataRequired(), Length(max=120)])
     situacao_patrimonial = SelectField(
     "Situação patrimonial",
     choices=[("em carga", "em carga"), ("fora de carga", "fora de carga")],

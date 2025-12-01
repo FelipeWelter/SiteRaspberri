@@ -104,6 +104,7 @@
 
   /* Larguras por coluna */
   .table-col-id              { width: 50px; }
+  .table-col-material        { width: 170px; }
   .table-col-situacao        { width: 110px; }
   .table-col-codot           { width: 90px; }
   .table-col-patrimonio      { width: 110px; }
@@ -156,7 +157,7 @@
         <form method="get" class="row g-2 mb-3">
           <div class="col-md-6">
             <input class="form-control" name="q"
-                   placeholder="Buscar por situação, patrimônio, CODOT, localização, marca, modelo, série..."
+                   placeholder="Buscar por material, situação, patrimônio, CODOT, localização, marca, modelo, série..."
                    value="{{ q or '' }}">
           </div>
           <div class="col-md-auto">
@@ -169,6 +170,7 @@
             <thead>
               <tr>
                 <th class="table-col-id">ID</th>
+                <th class="table-col-material">Material</th>
                 <th class="table-col-situacao">Situação</th>
                 <th class="table-col-codot">CODOT</th>
                 <th class="table-col-patrimonio">Nº Patr. (mat)</th>
@@ -186,6 +188,7 @@
               {% for it in items.items %}
               <tr>
                 <td>{{ it.id }}</td>
+                <td>{{ it.material or '-' }}</td>
                 <td>{{ it.situacao_patrimonial or '-' }}</td>
                 <td>{{ it.codot_item_material or '-' }}</td>
                 <td>{{ it.numero_patrimonio_material or '-' }}</td>
@@ -213,7 +216,7 @@
               </tr>
               {% else %}
               <tr>
-                <td colspan="12" class="text-center text-muted">Nenhum registro</td>
+                <td colspan="13" class="text-center text-muted">Nenhum registro</td>
               </tr>
               {% endfor %}
             </tbody>

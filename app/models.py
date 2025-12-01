@@ -129,7 +129,8 @@ class CL6(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
 
-    # Novos campos padronizados
+    # Identificação do material
+    material = db.Column(db.String(120), nullable=False, default="")
     situacao_patrimonial = db.Column(db.String(20), nullable=False, default="em carga") # em carga | fora de carga
     codot_item_material = db.Column(db.String(120))
     numero_patrimonio_material = db.Column(db.String(120))

@@ -334,6 +334,7 @@ def cl6_list():
         like = f"%{q}%"
         query = query.filter(
             or_(
+                CL6.material.ilike(like),
                 CL6.situacao_patrimonial.ilike(like),
                 CL6.codot_item_material.ilike(like),
                 CL6.numero_patrimonio_material.ilike(like),
@@ -356,6 +357,7 @@ def cl6_new():
     form = CL6Form()
     if form.validate_on_submit():
         it = CL6(
+            material=form.material.data,
             situacao_patrimonial=form.situacao_patrimonial.data,
             codot_item_material=form.codot_item_material.data,
             numero_patrimonio_material=form.numero_patrimonio_material.data,
@@ -405,6 +407,7 @@ def cl6_print_pdf():
     if q:
         like = f"%{q}%"
         filters.append(or_(
+            CL6.material.ilike(like),
             CL6.situacao_patrimonial.ilike(like),
             CL6.codot_item_material.ilike(like),
             CL6.numero_patrimonio_material.ilike(like),
@@ -464,7 +467,7 @@ def cl6_print_pdf():
 
     # Cabeçalho e dados
     headers = [
-        "ID", "Situação", "CODOT", "Nº Patr.",
+        "ID", "Material", "Situação", "CODOT", "Nº Patr.",
         "Ano", "Disp.", "Categoria", "Valor (R$)", "Localização",
         "Marca", "Modelo", "Nº Série",
     ]
@@ -474,6 +477,7 @@ def cl6_print_pdf():
         for it in rows:
             data.append([
                 it.id,
+                Paragraph(it.material or "-", Cell),
                 Paragraph(it.situacao_patrimonial or "-", Cell),
                 Paragraph(it.codot_item_material or "-", Cell),
                 Paragraph(it.numero_patrimonio_material or "-", Cell),
@@ -492,7 +496,7 @@ def cl6_print_pdf():
 
     # Larguras otimizadas p/ A4 paisagem
     col_widths = [
-        10*mm, 24*mm, 28*mm, 24*mm,
+        10*mm, 38*mm, 24*mm, 28*mm, 24*mm,
         14*mm, 16*mm, 24*mm, 22*mm,
         36*mm, 28*mm, 32*mm, 26*mm
     ]
