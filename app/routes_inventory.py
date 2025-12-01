@@ -421,18 +421,7 @@ def cl6_print_pdf():
 
     rows = CL6.query.filter(*filters).order_by(CL6.atualizado_em.desc()).all()
 
-    # ===== Helpers =====
-    def br_moeda(v):
-        try:
-            n = float(v)
-        except (TypeError, ValueError):
-            return "-"
-        # Formata estilo pt-BR sem depender de locale do SO
-        s = f"{n:,.2f}"
-        return "R$ " + s.replace(",", "X").replace(".", ",").replace("X", ".")
-
     total_itens = len(rows)
-    soma_valores = sum(float(getattr(r, "valor_inclusao_carga") or 0) for r in rows)
 
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -461,15 +450,14 @@ def cl6_print_pdf():
     story.append(Spacer(1, 4))
 
     # Resumo
-    resumo = f"Itens: <b>{total_itens}</b> &nbsp;&nbsp;|&nbsp;&nbsp; Soma dos valores: <b>{br_moeda(soma_valores)}</b>"
+    resumo = f"Itens: <b>{total_itens}</b>"
     story.append(Paragraph(resumo, Normal))
     story.append(Spacer(1, 6))
 
     # Cabeçalho e dados
     headers = [
-        "ID", "Material", "Situação", "CODOT", "Nº Patr.",
-        "Ano", "Disp.", "Categoria", "Valor (R$)", "Localização",
-        "Marca", "Modelo", "Nº Série",
+        "ID", "Material", "Situação", "Disp.", "Categoria",
+        "Localização", "Marca/Modelo", "Nº Série",
     ]
     data = [headers]
 
@@ -479,15 +467,10 @@ def cl6_print_pdf():
                 it.id,
                 Paragraph(it.material or "-", Cell),
                 Paragraph(it.situacao_patrimonial or "-", Cell),
-                Paragraph(it.codot_item_material or "-", Cell),
-                Paragraph(it.numero_patrimonio_material or "-", Cell),
-                Paragraph(str(it.ano_fabricacao or "-"), Cell),
                 Paragraph(it.disponibilidade or "-", Cell),
                 Paragraph(it.categoria or "-", Cell),
-                Paragraph(br_moeda(it.valor_inclusao_carga), Cell),
                 Paragraph(it.localizacao_atual or "-", Cell),
-                Paragraph(it.marca or "-", Cell),
-                Paragraph(it.modelo or "-", Cell),
+                Paragraph(f"{it.marca or '-'} / {it.modelo or '-'}", Cell),
                 Paragraph(it.numero_serie or "-", Cell),
             ])
     else:
@@ -496,9 +479,8 @@ def cl6_print_pdf():
 
     # Larguras otimizadas p/ A4 paisagem
     col_widths = [
-        10*mm, 38*mm, 24*mm, 28*mm, 24*mm,
-        14*mm, 16*mm, 24*mm, 22*mm,
-        36*mm, 28*mm, 32*mm, 26*mm
+        12*mm, 44*mm, 30*mm, 20*mm,
+        32*mm, 54*mm, 42*mm, 28*mm,
     ]
 
     tbl = Table(data, colWidths=col_widths, repeatRows=1)
@@ -517,9 +499,7 @@ def cl6_print_pdf():
         ("LEADING", (0, 1), (-1, -1), 10),
         # Alinhamentos por coluna
         ("ALIGN", (0, 1), (0, -1), "CENTER"),   # ID
-        ("ALIGN", (4, 1), (4, -1), "CENTER"),   # Ano
-        ("ALIGN", (5, 1), (5, -1), "CENTER"),   # Disp.
-        ("ALIGN", (7, 1), (7, -1), "RIGHT"),    # Valor
+        ("ALIGN", (3, 1), (3, -1), "CENTER"),   # Disp.
     ]
     # Em caso de "Sem registros", mantém alinhamento central
     if not rows:

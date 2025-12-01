@@ -106,15 +106,11 @@
   .table-col-id              { width: 50px; }
   .table-col-material        { width: 170px; }
   .table-col-situacao        { width: 110px; }
-  .table-col-codot           { width: 90px; }
-  .table-col-patrimonio      { width: 110px; }
-  .table-col-ano             { width: 70px; }
-  .table-col-disponibilidade { width: 80px; }
-  .table-col-categoria       { width: 110px; }
-  .table-col-valor           { width: 130px; }
-  .table-col-localizacao     { width: 130px; }
-  .table-col-modelo          { width: 130px; }
-  .table-col-serie           { width: 100px; }
+  .table-col-disponibilidade { width: 110px; }
+  .table-col-categoria       { width: 140px; }
+  .table-col-localizacao     { width: 170px; }
+  .table-col-modelo          { width: 160px; }
+  .table-col-serie           { width: 120px; }
   .table-col-acoes           { width: 140px; text-align: center; }
 
   /* Paginação dark */
@@ -172,12 +168,8 @@
                 <th class="table-col-id">ID</th>
                 <th class="table-col-material">Material</th>
                 <th class="table-col-situacao">Situação</th>
-                <th class="table-col-codot">CODOT</th>
-                <th class="table-col-patrimonio">Nº Patr. (mat)</th>
-                <th class="table-col-ano">Ano</th>
                 <th class="table-col-disponibilidade">Disp.</th>
                 <th class="table-col-categoria">Categoria</th>
-                <th class="table-col-valor">Valor (inc. carga)</th>
                 <th class="table-col-localizacao">Localização</th>
                 <th class="table-col-modelo">Marca/Modelo</th>
                 <th class="table-col-serie">Nº Série</th>
@@ -190,16 +182,8 @@
                 <td>{{ it.id }}</td>
                 <td>{{ it.material or '-' }}</td>
                 <td>{{ it.situacao_patrimonial or '-' }}</td>
-                <td>{{ it.codot_item_material or '-' }}</td>
-                <td>{{ it.numero_patrimonio_material or '-' }}</td>
-                <td>{{ it.ano_fabricacao or '-' }}</td>
                 <td>{{ it.disponibilidade or '-' }}</td>
                 <td>{{ it.categoria or '-' }}</td>
-                <td>
-                  R$
-                  {{ '{:,.2f}'.format((it.valor_inclusao_carga or 0))
-                      .replace(',', 'X').replace('.', ',').replace('X', '.') }}
-                </td>
                 <td>{{ it.localizacao_atual or '-' }}</td>
                 <td>{{ (it.marca or '-') ~ '/' ~ (it.modelo or '-') }}</td>
                 <td>{{ it.numero_serie or '-' }}</td>
@@ -216,7 +200,7 @@
               </tr>
               {% else %}
               <tr>
-                <td colspan="13" class="text-center text-muted">Nenhum registro</td>
+                <td colspan="9" class="text-center text-muted">Nenhum registro</td>
               </tr>
               {% endfor %}
             </tbody>
