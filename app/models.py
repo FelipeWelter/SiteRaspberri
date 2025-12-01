@@ -113,9 +113,11 @@ class CL2(db.Model):
     qtd_prevista = db.Column(db.Integer, default=0)
     qtd_disp = db.Column(db.Integer, default=0)
     qtd_indisp = db.Column(db.Integer, default=0)
+    necessidade = db.Column(db.Integer, default=0)
+    qtd_cautelada = db.Column(db.Integer, default=0)
+    observacoes = db.Column(db.Text)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
 
 
 

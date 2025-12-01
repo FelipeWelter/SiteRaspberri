@@ -138,9 +138,13 @@
                 <th>ID</th>
                 <th>Descrição do Material</th>
                 <th>Situação</th>
+                <th>Necessidade</th>
                 <th>Previsto</th>
                 <th>Disponível</th>
+                <th>Cautelada</th>
                 <th>Indisponível</th>
+                <th>Total</th>
+                <th>Observações</th>
                 <th style="width:150px;">Ações</th>
               </tr>
             </thead>
@@ -150,9 +154,13 @@
                 <td>{{ it.id }}</td>
                 <td>{{ it.nome }}</td>
                 <td>{{ it.situacao }}</td>
+                <td>{{ it.necessidade }}</td>
                 <td>{{ it.qtd_prevista }}</td>
                 <td>{{ it.qtd_disp }}</td>
+                <td>{{ it.qtd_cautelada }}</td>
                 <td>{{ it.qtd_indisp }}</td>
+                <td>{{ (it.qtd_disp or 0) + (it.qtd_cautelada or 0) + (it.qtd_indisp or 0) }}</td>
+                <td>{{ it.observacoes or '-' }}</td>
                 <td class="text-nowrap">
                   <a class="btn btn-sm btn-outline-primary" href="{{ url_for('inv.cl2_edit', id=it.id) }}">Editar</a>
                   <form method="post" action="{{ url_for('inv.cl2_delete', id=it.id) }}" style="display:inline"
@@ -163,7 +171,7 @@
               </tr>
               {% else %}
               <tr>
-                <td colspan="7" class="text-center text-muted">Nenhum registro</td>
+                <td colspan="11" class="text-center text-muted">Nenhum registro</td>
               </tr>
               {% endfor %}
             </tbody>

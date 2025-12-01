@@ -44,6 +44,9 @@ class CL2Form(FlaskForm):
     qtd_prevista = IntegerField("Quantidade Prevista", validators=[Optional(), NumberRange(min=0)])
     qtd_disp = IntegerField("Quantidade Disponível", validators=[Optional(), NumberRange(min=0)])
     qtd_indisp = IntegerField("Quantidade Indisponível", validators=[Optional(), NumberRange(min=0)])
+    necessidade = IntegerField("Necessidade", validators=[Optional(), NumberRange(min=0)])
+    qtd_cautelada = IntegerField("Quantidade Cautelada", validators=[Optional(), NumberRange(min=0)])
+    observacoes = TextAreaField("Observações", validators=[Optional(), Length(max=2000)])
     submit = SubmitField("Salvar")
 
 # ----------------- CL6 ----------------- NOVO

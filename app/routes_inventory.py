@@ -173,6 +173,9 @@ def cl2_new():
             qtd_prevista=form.qtd_prevista.data or 0,
             qtd_disp=form.qtd_disp.data or 0,
             qtd_indisp=form.qtd_indisp.data or 0,
+            necessidade=form.necessidade.data or 0,
+            qtd_cautelada=form.qtd_cautelada.data or 0,
+            observacoes=form.observacoes.data,
         )
         db.session.add(it)
         db.session.commit()
@@ -248,19 +251,49 @@ def cl2_print_pdf():
     story.append(Paragraph(cab, Normal))
     story.append(Spacer(1, 8))
 
-    data = [["ID", "Material", "Situação", "Prevista", "Disp.", "Indisp."]]
+    data = [[
+        "ID",
+        "Material",
+        "Situação",
+        "Necessidade",
+        "Prevista",
+        "Disp.",
+        "Cautelada",
+        "Indisp.",
+        "Total",
+        "Observações",
+    ]]
 
     for it in rows:
         data.append([
             it.id,
             Paragraph(it.nome or "-", CellStyle),
             Paragraph(it.situacao or "-", CellStyle),
+            it.necessidade or 0,
             it.qtd_prevista or 0,
             it.qtd_disp or 0,
-            it.qtd_indisp or 0
+            it.qtd_cautelada or 0,
+            it.qtd_indisp or 0,
+            (it.qtd_disp or 0) + (it.qtd_cautelada or 0) + (it.qtd_indisp or 0),
+            Paragraph(it.observacoes or "-", CellStyle),
         ])
 
-    tbl = Table(data, colWidths=[12*mm, 50*mm, 30*mm, 20*mm, 20*mm, 22*mm], repeatRows=1)
+    tbl = Table(
+        data,
+        colWidths=[
+            12*mm,
+            35*mm,
+            20*mm,
+            15*mm,
+            15*mm,
+            15*mm,
+            15*mm,
+            15*mm,
+            15*mm,
+            17*mm,
+        ],
+        repeatRows=1,
+    )
     tbl.setStyle(TableStyle([
         ("BACKGROUND", (0,0), (-1,0), colors.black),
         ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
