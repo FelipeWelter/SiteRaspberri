@@ -16,7 +16,7 @@
     </div>
     <div class="col-md-auto">
       <a class="btn btn-primary"
-      href="{{ url_for('inv.cl7_print_pdf', q=q) }}"
+      href="{{ url_for('inv.cl7_print_pdf', **request.args.to_dict()) }}"
       target="_blank">Exportar PDF</a>
     </div>
   </form>

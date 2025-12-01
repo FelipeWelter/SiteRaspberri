@@ -158,7 +158,7 @@
         <div class="d-flex justify-content-between align-items-end mb-3">
           <h3>CL7 · {{ pel_label }}</h3>
           <div>
-            <a class="btn btn-primary" href="{{ url_for(print_endpoint) }}" target="_blank">🖨️ Imprimir</a>
+            <a class="btn btn-primary" href="{{ url_for(print_endpoint, **request.args.to_dict()) }}" target="_blank">🖨️ Imprimir</a>
             <a class="btn btn-success" href="{{ url_for(create_endpoint) }}">+ Novo</a>
           </div>
         </div>

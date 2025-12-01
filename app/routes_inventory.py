@@ -743,7 +743,22 @@ def cl7_p2_print():
 
 # ----- Impressão PDF reusável por pelotão -----
 def _cl7_print_pdf_core(pelotao_val: str, titulo: str):
+    q = request.args.get("q", "").strip()
+
     filters = [CL7.pelotao == pelotao_val]
+    if q:
+        like = f"%{q}%"
+        filters.append(
+            or_(
+                CL7.material.ilike(like),
+                CL7.marca.ilike(like),
+                CL7.modelo.ilike(like),
+                CL7.numero_serie.ilike(like),
+                CL7.situacao.ilike(like),
+                CL7.observacao.ilike(like),
+            )
+        )
+
     items = CL7.query.filter(*filters).order_by(CL7.atualizado_em.desc()).all()
     sums = _summary_query(filters)
 
@@ -769,7 +784,10 @@ def _cl7_print_pdf_core(pelotao_val: str, titulo: str):
 
     story = []
     story.append(Paragraph(titulo, H1))
-    story.append(Paragraph(f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}", Normal))
+    cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    if q:
+        cab += f" &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; Filtro: <b>{q}</b>"
+    story.append(Paragraph(cab, Normal))
     story.append(Spacer(1, 8))
 
     data = [["ID", "Material", "Marca", "Modelo", "Nº Série", "Situação", "Observação"]]
