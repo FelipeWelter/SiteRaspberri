@@ -421,19 +421,6 @@ def cl6_print_pdf():
 
     rows = CL6.query.filter(*filters).order_by(CL6.atualizado_em.desc()).all()
 
-    # ===== Helpers =====
-    def br_moeda(v):
-        try:
-            n = float(v)
-        except (TypeError, ValueError):
-            return "-"
-        # Formata estilo pt-BR sem depender de locale do SO
-        s = f"{n:,.2f}"
-        return "R$ " + s.replace(",", "X").replace(".", ",").replace("X", ".")
-
-    total_itens = len(rows)
-    soma_valores = sum(float(getattr(r, "valor_inclusao_carga") or 0) for r in rows)
-
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -461,7 +448,7 @@ def cl6_print_pdf():
     story.append(Spacer(1, 4))
 
     # Resumo
-    resumo = f"Itens: <b>{total_itens}</b> &nbsp;&nbsp;|&nbsp;&nbsp; Soma dos valores: <b>{br_moeda(soma_valores)}</b>"
+    resumo = f"Itens: <b>{len(rows)}</b>"
     story.append(Paragraph(resumo, Normal))
     story.append(Spacer(1, 6))
 
