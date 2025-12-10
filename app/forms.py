@@ -87,6 +87,34 @@ class CL7Form(FlaskForm):
     observacao = TextAreaField("Observação (defeito)", validators=[Optional(), Length(max=2000)])
     submit = SubmitField("Salvar")
 
+# ----------------- CL9 -----------------
+class CL9Form(FlaskForm):
+    tipo_modelo = StringField("Tipo / Modelo", validators=[DataRequired(), Length(max=160)])
+    numero_eb = StringField("Número EB", validators=[DataRequired(), Length(max=120)])
+    situacao = SelectField(
+        "Situação",
+        choices=[
+            ("DISPONÍVEL", "Disponível"),
+            ("DISPONÍVEL COM RESTRIÇÃO", "Disponível com restrição"),
+            ("INDISPONÍVEL", "Indisponível"),
+        ],
+        validators=[DataRequired()],
+        default="DISPONÍVEL",
+    )
+    localizacao = SelectField(
+        "Localização",
+        choices=[("GARAGEM", "Garagem"), ("DESTINO/MISSÃO", "Em destino/missão")],
+        validators=[DataRequired()],
+        default="GARAGEM",
+    )
+    destino_missao = StringField("Destino / Missão", validators=[Optional(), Length(max=180)])
+    motivo_indisponibilidade = TextAreaField(
+        "Motivo da indisponibilidade", validators=[Optional(), Length(max=2000)]
+    )
+    observacoes = TextAreaField("Observações", validators=[Optional(), Length(max=2000)])
+    motivo_edicao = TextAreaField("Motivo da edição", validators=[Optional(), Length(max=500)])
+    submit = SubmitField("Salvar")
+
 # ----------------- Usuários -----------------
 class UserForm(FlaskForm):
     full_name = StringField("Nome completo", validators=[DataRequired(), Length(max=120)])
@@ -105,7 +133,7 @@ class UserForm(FlaskForm):
     # múltiplas classes (apenas se role=user)
     classes = SelectMultipleField(
         "Classes com acesso",
-        choices=[("CL2", "CL2"), ("CL6", "CL6"), ("CL7", "CL7")],
+        choices=[("CL1", "CL1"), ("CL2", "CL2"), ("CL6", "CL6"), ("CL7", "CL7"), ("CL9", "CL9")],
         option_widget=widgets.CheckboxInput(),
         widget=widgets.ListWidget(prefix_label=False),
         validators=[Optional()],

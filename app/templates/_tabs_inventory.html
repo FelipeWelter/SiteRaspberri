@@ -47,4 +47,11 @@
       CL7 · 2º Pelotão
     </a>
   </li>
+
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if ep[:8] == 'inv.cl9_' else '' }}"
+       href="{{ url_for('inv.cl9_list') }}">
+      CL9
+    </a>
+  </li>
 </ul>

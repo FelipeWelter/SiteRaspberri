@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Nova' if mode=='new' else 'Editar' }} Viatura CL9{% endblock %}
+
+{% block content %}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.80));
+  }
+
+  .dash-container { position: relative; width: 100%; max-width: 900px; }
+  .card-glass {
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
+  .card-glass .card-body { padding: 32px; }
+  h3 { color:#fff; font-weight:800; margin:0; text-shadow:0 4px 14px rgba(0,0,0,.5); }
+
+  .form-control, .form-select, textarea {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+  .form-control:focus, .form-select:focus, textarea:focus {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 0 12px rgba(255,255,255,0.2);
+  }
+  label { font-weight: 600; }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+    {% include '_tabs_inventory.html' %}
+
+    <div class="card card-glass">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>{{ 'Cadastrar' if mode=='new' else 'Editar' }} Viatura (Classe IX)</h3>
+          <a class="btn btn-outline-light" href="{{ url_for('inv.cl9_list') }}">Voltar</a>
+        </div>
+
+        <form method="post">
+          {{ form.hidden_tag() }}
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">{{ form.tipo_modelo.label }}</label>
+              {{ form.tipo_modelo(class='form-control') }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ form.numero_eb.label }}</label>
+              {{ form.numero_eb(class='form-control') }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.situacao.label }}</label>
+              {{ form.situacao(class='form-select') }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ form.localizacao.label }}</label>
+              {{ form.localizacao(class='form-select') }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.destino_missao.label }}</label>
+              {{ form.destino_missao(class='form-control') }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ form.motivo_indisponibilidade.label }}</label>
+              {{ form.motivo_indisponibilidade(class='form-control', rows=3) }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.observacoes.label }}</label>
+              {{ form.observacoes(class='form-control', rows=3) }}
+            </div>
+
+            {% if mode == 'edit' %}
+            <div class="col-12">
+              <label class="form-label">{{ form.motivo_edicao.label }} <span class="text-warning">(obrigatório para salvar)</span></label>
+              {{ form.motivo_edicao(class='form-control', rows=2, required=True) }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary">Salvar</button>
+            <a class="btn btn-outline-light" href="{{ url_for('inv.cl9_list') }}">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
