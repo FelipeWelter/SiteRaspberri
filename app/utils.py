@@ -1,6 +1,6 @@
 # app/utils.py
 from functools import wraps
-from flask import abort, redirect, url_for
+from flask import abort, flash, redirect, url_for
 from flask_login import login_required, current_user
 
 def admin_required(fn):
@@ -9,6 +9,7 @@ def admin_required(fn):
     def wrapper(*args, **kwargs):
         if getattr(current_user, "role", None) != "admin":
             # se preferir, pode usar abort(403)
+            flash("Você não tem permissão para acessar esta página.", "danger")
             return redirect(url_for("main.dashboard"))
         return fn(*args, **kwargs)
     return wrapper
@@ -44,6 +45,10 @@ def class_required(classe: str):
             if classe in perms:
                 return fn(*args, **kwargs)
 
+            flash(
+                "Você não tem permissão para acessar esta página.",
+                "danger",
+            )
             return redirect(url_for("main.dashboard"))  # ou abort(403)
         return wrapper
     return decorator
