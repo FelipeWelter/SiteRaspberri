@@ -946,13 +946,23 @@ def cl7_print_pdf():
 
 
 def _cl9_stats(base_query):
+    total = base_query.count()
+    disp = base_query.filter(CL9.situacao == "DISPONÍVEL").count()
+    disp_restr = base_query.filter(CL9.situacao == "DISPONÍVEL COM RESTRIÇÃO").count()
+    indisp = base_query.filter(CL9.situacao == "INDISPONÍVEL").count()
+    garagem = base_query.filter(func.upper(CL9.localizacao) == "GARAGEM").count()
+    destino = base_query.filter(func.upper(CL9.localizacao) == "DESTINO/MISSÃO").count()
+
+    avail_pct = round((disp / total * 100), 1) if total else 0.0
+
     return {
-        "total": base_query.count(),
-        "disp": base_query.filter(CL9.situacao == "DISPONÍVEL").count(),
-        "disp_restr": base_query.filter(CL9.situacao == "DISPONÍVEL COM RESTRIÇÃO").count(),
-        "indisp": base_query.filter(CL9.situacao == "INDISPONÍVEL").count(),
-        "garagem": base_query.filter(func.upper(CL9.localizacao) == "GARAGEM").count(),
-        "destino": base_query.filter(func.upper(CL9.localizacao) == "DESTINO/MISSÃO").count(),
+        "total": total,
+        "disp": disp,
+        "disp_restr": disp_restr,
+        "indisp": indisp,
+        "garagem": garagem,
+        "destino": destino,
+        "avail_pct": avail_pct,
     }
 
 
@@ -979,7 +989,7 @@ def cl9_list():
         )
 
     items = query.order_by(CL9.atualizado_em.desc()).paginate(page=page, per_page=10)
-    stats = _cl9_stats(base_query)
+    stats = _cl9_stats(query)
     return render_template("cl9_list.html", items=items, q=q, stats=stats)
 
 
@@ -1103,8 +1113,9 @@ def cl9_print_pdf():
             )
         )
 
-    rows = CL9.query.filter(*filters).order_by(CL9.atualizado_em.desc()).all()
-    stats = _cl9_stats(CL9.query)
+    base_query = CL9.query.filter(*filters)
+    rows = base_query.order_by(CL9.atualizado_em.desc()).all()
+    stats = _cl9_stats(base_query)
 
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -1137,8 +1148,9 @@ def cl9_print_pdf():
         f"Disponíveis: <b>{stats['disp']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
         f"Disp. c/ restrição: <b>{stats['disp_restr']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
         f"Indisp.: <b>{stats['indisp']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
-        f"Garagem: <b>{stats['garagem']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
-        f"Destino/missão: <b>{stats['destino']}</b>"
+        f"Na garagem: <b>{stats['garagem']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Em destino/missão: <b>{stats['destino']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Disponibilidade: <b>{stats['avail_pct']}%</b>"
     )
     story.append(Paragraph(resumo, Normal))
     story.append(Spacer(1, 6))

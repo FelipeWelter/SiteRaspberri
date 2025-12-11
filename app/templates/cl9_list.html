@@ -82,13 +82,14 @@
           </div>
         </div>
 
-        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 stats-grid mb-3">
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-7 g-2 stats-grid mb-3">
           <div class="col"><div class="stat-card"><div class="stat-title">Total</div><div class="stat-value">{{ stats.total }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Disponíveis</div><div class="stat-value">{{ stats.disp }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Disp. c/ restrição</div><div class="stat-value">{{ stats.disp_restr }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Indisponíveis</div><div class="stat-value">{{ stats.indisp }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Na garagem</div><div class="stat-value">{{ stats.garagem }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Em destino/missão</div><div class="stat-value">{{ stats.destino }}</div></div></div>
+          <div class="col"><div class="stat-card"><div class="stat-title">Disponibilidade</div><div class="stat-value">{{ stats.avail_pct }}%</div></div></div>
         </div>
 
         <form method="get" class="row g-2 mb-3">
