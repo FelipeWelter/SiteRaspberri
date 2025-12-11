@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}CL9 - Viaturas{% endblock %}
+
+{% block content %}
+<style>
+  .dash-wrap {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    background: url("{{ url_for('static', filename='img/login-bg.jpg') }}") center/cover no-repeat fixed;
+    padding: 28px 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .dash-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.50), rgba(0,0,0,.80));
+  }
+
+  .dash-container { position: relative; width: 100%; max-width: 1500px; }
+  .card-glass {
+    background: rgba(20,20,20,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.45);
+    color: #fff;
+  }
+  .card-glass .card-body { padding: 32px; }
+  h3 { color:#fff; font-weight:800; margin:0; text-shadow:0 4px 14px rgba(0,0,0,.5); }
+
+  .stats-grid .stat-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: #fff;
+  }
+  .stats-grid .stat-title { font-size: .9rem; opacity: .85; margin-bottom: 4px; }
+  .stats-grid .stat-value { font-size: 1.3rem; font-weight: 700; }
+
+  .card-glass .form-control {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+  }
+  .card-glass .form-control::placeholder { color: #e0e0e0; }
+  .card-glass .form-control:focus {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 0 12px rgba(255,255,255,0.2);
+  }
+
+  .table-glass {
+    width: 100%;
+    background: rgba(0,0,0,0.35) !important;
+    color: #fff !important;
+  }
+  .table-glass th { background: rgba(255,255,255,0.08) !important; border-bottom:1px solid rgba(255,255,255,0.25) !important; }
+  .table-glass td { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.15) !important; }
+  .table-glass tbody tr:nth-child(even) td { background: rgba(255,255,255,0.08) !important; }
+  .table-glass tbody tr:hover td { background: rgba(255,255,255,0.15) !important; }
+
+  .badge-status { font-size: .85rem; }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-container">
+    {% include '_tabs_inventory.html' %}
+
+    <div class="card card-glass">
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h3>Classe IX - Viaturas</h3>
+          <div class="btn-group">
+            <a class="btn btn-success" href="{{ url_for('inv.cl9_new') }}">+ Cadastrar viatura</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('inv.cl9_print_pdf', q=(q if q else None)) }}">🖨️ Imprimir</a>
+          </div>
+        </div>
+
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-7 g-2 stats-grid mb-3">
+          <div class="col"><div class="stat-card"><div class="stat-title">Total</div><div class="stat-value">{{ stats.total }}</div></div></div>
+          <div class="col"><div class="stat-card"><div class="stat-title">Disponíveis</div><div class="stat-value">{{ stats.disp }}</div></div></div>
+          <div class="col"><div class="stat-card"><div class="stat-title">Disp. c/ restrição</div><div class="stat-value">{{ stats.disp_restr }}</div></div></div>
+          <div class="col"><div class="stat-card"><div class="stat-title">Indisponíveis</div><div class="stat-value">{{ stats.indisp }}</div></div></div>
+          <div class="col"><div class="stat-card"><div class="stat-title">Na garagem</div><div class="stat-value">{{ stats.garagem }}</div></div></div>
+          <div class="col"><div class="stat-card"><div class="stat-title">Em destino/missão</div><div class="stat-value">{{ stats.destino }}</div></div></div>
+          <div class="col"><div class="stat-card"><div class="stat-title">Disponibilidade</div><div class="stat-value">{{ stats.avail_pct }}%</div></div></div>
+        </div>
+
+        <form method="get" class="row g-2 mb-3">
+          <div class="col-md-7">
+            <input class="form-control" name="q" placeholder="Buscar por modelo, EB, situação, localização, destino ou observações" value="{{ q or '' }}">
+          </div>
+          <div class="col-md-auto">
+            <button class="btn btn-primary">Buscar</button>
+          </div>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-glass align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tipo / Modelo</th>
+                <th>Nº EB</th>
+                <th>Situação</th>
+                <th>Localização</th>
+                <th>Destino / Missão</th>
+                <th>Motivo da indisponibilidade</th>
+                <th>Observações</th>
+                <th class="text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for it in items.items %}
+              <tr>
+                <td>{{ it.id }}</td>
+                <td>{{ it.tipo_modelo }}</td>
+                <td>{{ it.numero_eb }}</td>
+                <td>
+                  {% if it.situacao == 'INDISPONÍVEL' %}
+                    <span class="badge bg-danger badge-status">{{ it.situacao }}</span>
+                  {% elif it.situacao == 'DISPONÍVEL COM RESTRIÇÃO' %}
+                    <span class="badge bg-warning text-dark badge-status">{{ it.situacao }}</span>
+                  {% else %}
+                    <span class="badge bg-success badge-status">{{ it.situacao }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ it.localizacao or '-' }}</td>
+                <td>{{ it.destino_missao or '-' }}</td>
+                <td>{{ it.motivo_indisponibilidade or '-' }}</td>
+                <td>{{ it.observacoes or '-' }}</td>
+                <td class="text-center text-nowrap">
+                  <a class="btn btn-sm btn-outline-primary" href="{{ url_for('inv.cl9_edit', id=it.id) }}">Editar</a>
+                  <a class="btn btn-sm btn-outline-info" href="{{ url_for('inv.cl9_logs', id=it.id) }}">Histórico</a>
+                  <form method="post" action="{{ url_for('inv.cl9_delete', id=it.id) }}" class="d-inline" onsubmit="return confirm('Confirmar exclusão?')">
+                    <button class="btn btn-sm btn-outline-danger">Excluir</button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="9" class="text-center">Nenhuma viatura cadastrada.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <nav aria-label="Paginação" class="mt-3">
+          <ul class="pagination pagination-sm">
+            <li class="page-item {% if not items.has_prev %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('inv.cl9_list', page=items.prev_num, q=q) }}">Anterior</a>
+            </li>
+            <li class="page-item disabled"><span class="page-link">Página {{ items.page }} / {{ items.pages or 1 }}</span></li>
+            <li class="page-item {% if not items.has_next %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('inv.cl9_list', page=items.next_num, q=q) }}">Próxima</a>
+            </li>
+          </ul>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

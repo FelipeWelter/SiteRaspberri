@@ -60,7 +60,7 @@ class User(db.Model, UserMixin):
             perms = []
 
         return cls in perms
-    
+
 
     # CLASSE 1 - RAÇÕES
 
@@ -163,3 +163,40 @@ class CL7(db.Model):
     pelotao = db.Column(db.String(20), nullable=True, index=True, default="1º PELOTAO") #1 PEL
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class CL9(db.Model):
+    __tablename__ = "cl9"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    tipo_modelo = db.Column(db.String(160), nullable=False)
+    numero_eb = db.Column(db.String(120), nullable=False, unique=True)
+    situacao = db.Column(db.String(40), nullable=False, default="DISPONÍVEL")
+    localizacao = db.Column(db.String(80), default="GARAGEM")
+    destino_missao = db.Column(db.String(180))
+    motivo_indisponibilidade = db.Column(db.Text)
+    observacoes = db.Column(db.Text)
+
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    logs = db.relationship(
+        "CL9Log",
+        backref="cl9",
+        cascade="all, delete-orphan",
+        order_by="desc(CL9Log.criado_em)",
+    )
+
+
+class CL9Log(db.Model):
+    __tablename__ = "cl9_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    cl9_id = db.Column(db.Integer, db.ForeignKey("cl9.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_name = db.Column(db.String(120))
+    motivo = db.Column(db.Text, nullable=False)
+    dados_antes = db.Column(db.JSON)
+    dados_depois = db.Column(db.JSON)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)

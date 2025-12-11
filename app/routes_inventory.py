@@ -11,8 +11,8 @@ from reportlab.lib.units import mm
 import io
 
 from .utils import class_required  # segue vindo do utils.py
-from .models import db, CL2, CL6, CL7, CL1, CL1Log
-from .forms import CL2Form, CL6Form, CL7Form, CL1Form
+from .models import db, CL2, CL6, CL7, CL1, CL1Log, CL9, CL9Log
+from .forms import CL2Form, CL6Form, CL7Form, CL1Form, CL9Form
 
 bp = Blueprint("inv", __name__, url_prefix="/inv")
 
@@ -937,4 +937,286 @@ def cl7_print_pdf():
     resp = make_response(pdf)
     resp.headers["Content-Type"] = "application/pdf"
     resp.headers["Content-Disposition"] = "inline; filename=resumo_cl7.pdf"
+    return resp
+
+
+# =====================================================================================
+# CL9 - Viaturas
+# =====================================================================================
+
+
+def _cl9_stats(base_query):
+    total = base_query.count()
+    disp = base_query.filter(CL9.situacao == "DISPONÍVEL").count()
+    disp_restr = base_query.filter(CL9.situacao == "DISPONÍVEL COM RESTRIÇÃO").count()
+    indisp = base_query.filter(CL9.situacao == "INDISPONÍVEL").count()
+    garagem = base_query.filter(func.upper(CL9.localizacao) == "GARAGEM").count()
+    destino = base_query.filter(func.upper(CL9.localizacao) == "DESTINO/MISSÃO").count()
+
+    avail_pct = round((disp / total * 100), 1) if total else 0.0
+
+    return {
+        "total": total,
+        "disp": disp,
+        "disp_restr": disp_restr,
+        "indisp": indisp,
+        "garagem": garagem,
+        "destino": destino,
+        "avail_pct": avail_pct,
+    }
+
+
+@bp.get("/cl9", endpoint="cl9_list")
+@class_required("CL9")
+def cl9_list():
+    q = request.args.get("q", "").strip()
+    page = request.args.get("page", 1, type=int)
+
+    base_query = CL9.query
+    query = base_query
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                CL9.tipo_modelo.ilike(like),
+                CL9.numero_eb.ilike(like),
+                CL9.situacao.ilike(like),
+                CL9.localizacao.ilike(like),
+                CL9.destino_missao.ilike(like),
+                CL9.motivo_indisponibilidade.ilike(like),
+                CL9.observacoes.ilike(like),
+            )
+        )
+
+    items = query.order_by(CL9.atualizado_em.desc()).paginate(page=page, per_page=10)
+    stats = _cl9_stats(query)
+    return render_template("cl9_list.html", items=items, q=q, stats=stats)
+
+
+@bp.route("/cl9/new", methods=["GET", "POST"], endpoint="cl9_new")
+@class_required("CL9")
+def cl9_new():
+    form = CL9Form()
+    if form.validate_on_submit():
+        it = CL9(
+            tipo_modelo=form.tipo_modelo.data,
+            numero_eb=form.numero_eb.data,
+            situacao=form.situacao.data,
+            localizacao=form.localizacao.data,
+            destino_missao=form.destino_missao.data,
+            motivo_indisponibilidade=form.motivo_indisponibilidade.data,
+            observacoes=form.observacoes.data,
+        )
+        db.session.add(it)
+        db.session.commit()
+        flash("Viatura cadastrada.", "success")
+        return redirect(url_for("inv.cl9_list"))
+    return render_template("cl9_form.html", form=form, mode="new")
+
+
+@bp.route("/cl9/<int:id>/edit", methods=["GET", "POST"], endpoint="cl9_edit")
+@class_required("CL9")
+def cl9_edit(id):
+    it = CL9.query.get_or_404(id)
+    form = CL9Form(obj=it)
+
+    if form.validate_on_submit():
+        if not form.motivo_edicao.data:
+            flash("Informe o motivo da edição.", "warning")
+            return render_template("cl9_form.html", form=form, mode="edit", item=it)
+
+        snapshot_antes = {
+            "tipo_modelo": it.tipo_modelo,
+            "numero_eb": it.numero_eb,
+            "situacao": it.situacao,
+            "localizacao": it.localizacao,
+            "destino_missao": it.destino_missao,
+            "motivo_indisponibilidade": it.motivo_indisponibilidade,
+            "observacoes": it.observacoes,
+        }
+
+        it.tipo_modelo = form.tipo_modelo.data
+        it.numero_eb = form.numero_eb.data
+        it.situacao = form.situacao.data
+        it.localizacao = form.localizacao.data
+        it.destino_missao = form.destino_missao.data
+        it.motivo_indisponibilidade = form.motivo_indisponibilidade.data
+        it.observacoes = form.observacoes.data
+
+        snapshot_depois = {
+            "tipo_modelo": it.tipo_modelo,
+            "numero_eb": it.numero_eb,
+            "situacao": it.situacao,
+            "localizacao": it.localizacao,
+            "destino_missao": it.destino_missao,
+            "motivo_indisponibilidade": it.motivo_indisponibilidade,
+            "observacoes": it.observacoes,
+        }
+
+        log_entry = CL9Log(
+            cl9=it,
+            user_id=current_user.id if current_user and current_user.is_authenticated else None,
+            user_name=(current_user.full_name or current_user.username)
+            if current_user and current_user.is_authenticated
+            else None,
+            motivo=form.motivo_edicao.data,
+            dados_antes=snapshot_antes,
+            dados_depois=snapshot_depois,
+        )
+        db.session.add(log_entry)
+        db.session.commit()
+        flash("Viatura atualizada.", "success")
+        return redirect(url_for("inv.cl9_list"))
+
+    return render_template("cl9_form.html", form=form, mode="edit", item=it)
+
+
+@bp.post("/cl9/<int:id>/delete", endpoint="cl9_delete")
+@class_required("CL9")
+def cl9_delete(id):
+    it = CL9.query.get_or_404(id)
+    db.session.delete(it)
+    db.session.commit()
+    flash("Viatura removida.", "warning")
+    return redirect(url_for("inv.cl9_list"))
+
+
+@bp.get("/cl9/<int:id>/logs", endpoint="cl9_logs")
+@class_required("CL9")
+def cl9_logs(id):
+    item = CL9.query.get_or_404(id)
+    logs = (
+        CL9Log.query.filter_by(cl9_id=id)
+        .order_by(CL9Log.criado_em.desc())
+        .all()
+    )
+    return render_template("cl9_history.html", item=item, logs=logs)
+
+
+@bp.get("/cl9/print-pdf", endpoint="cl9_print_pdf")
+@class_required("CL9")
+def cl9_print_pdf():
+    q = request.args.get("q", "").strip()
+
+    filters = []
+    if q:
+        like = f"%{q}%"
+        filters.append(
+            or_(
+                CL9.tipo_modelo.ilike(like),
+                CL9.numero_eb.ilike(like),
+                CL9.situacao.ilike(like),
+                CL9.localizacao.ilike(like),
+                CL9.destino_missao.ilike(like),
+                CL9.motivo_indisponibilidade.ilike(like),
+                CL9.observacoes.ilike(like),
+            )
+        )
+
+    base_query = CL9.query.filter(*filters)
+    rows = base_query.order_by(CL9.atualizado_em.desc()).all()
+    stats = _cl9_stats(base_query)
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        leftMargin=12*mm,
+        rightMargin=12*mm,
+        topMargin=14*mm,
+        bottomMargin=14*mm,
+        title="Resumo Classe IX",
+    )
+
+    styles = getSampleStyleSheet()
+    H1 = ParagraphStyle("H1", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=16, spaceAfter=4)
+    Small = ParagraphStyle("Small", parent=styles["Normal"], fontSize=8, leading=10)
+    Normal = ParagraphStyle("Normal9", parent=styles["Normal"], fontSize=9, leading=12)
+    Cell = ParagraphStyle("Cell", parent=styles["Normal"], fontName="Helvetica", fontSize=8, leading=10, wordWrap="CJK")
+
+    story = []
+    story.append(Paragraph("Relação de Viaturas • Classe IX", H1))
+
+    cab = f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    if q:
+        cab += f" &nbsp;&nbsp;|&nbsp;&nbsp; Busca: <b>{q}</b>"
+    story.append(Paragraph(cab, Small))
+    story.append(Spacer(1, 4))
+
+    resumo = (
+        f"Total: <b>{stats['total']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Disponíveis: <b>{stats['disp']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Disp. c/ restrição: <b>{stats['disp_restr']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Indisp.: <b>{stats['indisp']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Na garagem: <b>{stats['garagem']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Em destino/missão: <b>{stats['destino']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+        f"Disponibilidade: <b>{stats['avail_pct']}%</b>"
+    )
+    story.append(Paragraph(resumo, Normal))
+    story.append(Spacer(1, 6))
+
+    headers = [
+        "ID",
+        "Tipo/Modelo",
+        "Nº EB",
+        "Situação",
+        "Localização",
+        "Destino/Missão",
+        "Motivo Indisp.",
+        "Observações",
+    ]
+    data = [headers]
+
+    if rows:
+        for it in rows:
+            data.append(
+                [
+                    it.id,
+                    Paragraph(it.tipo_modelo or "-", Cell),
+                    Paragraph(it.numero_eb or "-", Cell),
+                    Paragraph(it.situacao or "-", Cell),
+                    Paragraph(it.localizacao or "-", Cell),
+                    Paragraph(it.destino_missao or "-", Cell),
+                    Paragraph(it.motivo_indisponibilidade or "-", Cell),
+                    Paragraph(it.observacoes or "-", Cell),
+                ]
+            )
+    else:
+        data.append(["— Sem registros —"] + ["-"] * (len(headers) - 1))
+
+    col_widths = [12 * mm, 42 * mm, 22 * mm, 30 * mm, 34 * mm, 38 * mm, 46 * mm, 46 * mm]
+    tbl = Table(data, colWidths=col_widths, repeatRows=1)
+    ts = [
+        ("BACKGROUND", (0, 0), (-1, 0), colors.black),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 9),
+        ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("VALIGN", (0, 1), (-1, -1), "MIDDLE"),
+        ("FONTSIZE", (0, 1), (-1, -1), 8),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F7F7F7")]),
+        ("ALIGN", (0, 1), (0, -1), "CENTER"),
+    ]
+    if not rows:
+        ts.append(("ALIGN", (0, 1), (-1, 1), "CENTER"))
+    tbl.setStyle(TableStyle(ts))
+    story.append(tbl)
+
+    def _header_footer(canvas, doc_):
+        canvas.saveState()
+        w, h = landscape(A4)
+        canvas.setFont("Helvetica", 8)
+        canvas.drawString(doc_.leftMargin, h - 10 * mm, "CL9 • Relatório de Viaturas")
+        page_txt = f"Página {canvas.getPageNumber()}"
+        canvas.drawRightString(w - doc_.rightMargin, 10 * mm, page_txt)
+        canvas.restoreState()
+
+    doc.build(story, onFirstPage=_header_footer, onLaterPages=_header_footer)
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = "inline; filename=resumo_cl9.pdf"
     return resp
