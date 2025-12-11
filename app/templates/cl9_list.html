@@ -30,6 +30,17 @@
   }
   .card-glass .card-body { padding: 32px; }
   h3 { color:#fff; font-weight:800; margin:0; text-shadow:0 4px 14px rgba(0,0,0,.5); }
+  .card-glass,
+  .card-glass label,
+  .card-glass .page-link,
+  .card-glass .form-label,
+  .card-glass .form-control,
+  .card-glass .btn,
+  .card-glass table,
+  .card-glass th,
+  .card-glass td { color: #fff; }
+  .card-glass .page-link { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+  .card-glass .page-link:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
   .stats-grid .stat-card {
     background: rgba(255,255,255,0.08);
@@ -40,6 +51,17 @@
   }
   .stats-grid .stat-title { font-size: .9rem; opacity: .85; margin-bottom: 4px; }
   .stats-grid .stat-value { font-size: 1.3rem; font-weight: 700; }
+
+  .availability-pill {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    border-radius: 10px;
+    padding: 8px 14px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+    font-weight: 700;
+    text-align: center;
+  }
 
   .card-glass .form-control {
     background: rgba(255,255,255,0.15);
@@ -76,20 +98,22 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <h3>Classe IX - Viaturas</h3>
-          <div class="btn-group">
-            <a class="btn btn-success" href="{{ url_for('inv.cl9_new') }}">+ Cadastrar viatura</a>
-            <a class="btn btn-outline-secondary" href="{{ url_for('inv.cl9_print_pdf', q=(q if q else None)) }}">🖨️ Imprimir</a>
+          <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+            <div class="availability-pill">Disponibilidade {{ stats.avail_pct }}%</div>
+            <div class="btn-group">
+              <a class="btn btn-success" href="{{ url_for('inv.cl9_new') }}">+ Cadastrar viatura</a>
+              <a class="btn btn-outline-secondary" href="{{ url_for('inv.cl9_print_pdf', q=(q if q else None)) }}">🖨️ Imprimir</a>
+            </div>
           </div>
         </div>
 
-        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-7 g-2 stats-grid mb-3">
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 stats-grid mb-3">
           <div class="col"><div class="stat-card"><div class="stat-title">Total</div><div class="stat-value">{{ stats.total }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Disponíveis</div><div class="stat-value">{{ stats.disp }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Disp. c/ restrição</div><div class="stat-value">{{ stats.disp_restr }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Indisponíveis</div><div class="stat-value">{{ stats.indisp }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Na garagem</div><div class="stat-value">{{ stats.garagem }}</div></div></div>
           <div class="col"><div class="stat-card"><div class="stat-title">Em destino/missão</div><div class="stat-value">{{ stats.destino }}</div></div></div>
-          <div class="col"><div class="stat-card"><div class="stat-title">Disponibilidade</div><div class="stat-value">{{ stats.avail_pct }}%</div></div></div>
         </div>
 
         <form method="get" class="row g-2 mb-3">
