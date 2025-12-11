@@ -23,5 +23,5 @@ class Config:
 
     APP_NAME = "SISTEMA DE CONTROLE DE MATERIAL"
 
-    APP_VERSION = "1.3.0"
+    APP_VERSION = "1.4.7"
 
