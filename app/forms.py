@@ -121,9 +121,10 @@ class UserForm(FlaskForm):
     username = StringField("Login", validators=[DataRequired(), Length(max=80)])
     identity = StringField("Identidade", validators=[Optional(), Length(max=40)])
 
-    # admin / all / user
+    # admin / all / user / viewer
     role = SelectField("Perfil", choices=[
         ("user", "Usuário (apenas classes selecionadas)"),
+        ("viewer", "Usuário (visualiza todas, edita somente selecionadas)"),
         ("all", "Usuário (todas as classes)"),
         ("admin", "Administrador (acesso total)"),
     ], validators=[DataRequired()])

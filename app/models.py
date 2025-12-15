@@ -24,7 +24,7 @@ class User(db.Model, UserMixin):
     full_name = db.Column(db.String(120), nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     identity = db.Column(db.String(50))  # identidade funcional, se desejar
-    role = db.Column(db.String(20), default="user")  # "admin", "all", "user"
+    role = db.Column(db.String(20), default="user")  # "admin", "all", "viewer", "user"
     active = db.Column(db.Boolean, default=True)
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

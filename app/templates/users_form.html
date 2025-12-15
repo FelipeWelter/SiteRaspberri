@@ -222,7 +222,7 @@ input[disabled],
                       <span class="text-muted">Nenhuma classe configurada no formulário.</span>
                     {% endif %}
                   </div>
-                  <small class="text-muted">Visível apenas quando o perfil for "Usuário".</small>
+                  <small class="text-muted">Visível apenas quando o perfil for "Usuário" ou "Visualizador".</small>
                 </div>
               </div>
             </div>
@@ -299,7 +299,7 @@ input[disabled],
     if (!roleEl) return;
     const box = document.getElementById('classes-box');
     if (!box) return;
-    box.style.display = (roleEl.value === 'user') ? 'block' : 'none';
+    box.style.display = (roleEl.value === 'user' || roleEl.value === 'viewer') ? 'block' : 'none';
   }
 
   document.addEventListener('DOMContentLoaded', toggleClasses);

@@ -64,7 +64,7 @@ def users_new():
             u.set_password(form.password.data)
 
         u.classes = []
-        if u.role == "user":
+        if u.role in ("user", "viewer"):
             for c in (form.classes.data or []):
                 u.classes.append(UserClass(classe=c))
 
@@ -116,7 +116,7 @@ def users_edit(id):
         db.session.flush()  # garante que os deletes rodaram antes dos inserts
 
         # 2) Se for perfil "user", recria as classes selecionadas
-        if u.role == "user":
+        if u.role in ("user", "viewer"):
             seen = set()  # só por segurança, evita duplicar a mesma classe
             for c in (form.classes.data or []):
                 if not c:
