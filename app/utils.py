@@ -1,6 +1,6 @@
 # app/utils.py
 from functools import wraps
-from flask import abort, flash, redirect, url_for
+from flask import abort, flash, redirect, request, url_for
 from flask_login import login_required, current_user
 
 def admin_required(fn):
@@ -14,10 +14,14 @@ def admin_required(fn):
         return fn(*args, **kwargs)
     return wrapper
 
-def class_required(classe: str):
+def class_required(classe: str, allow_view_all: bool = False):
     """Restringe acesso a uma classe (ex.: 'CL2', 'CL6', 'CL7').
        Admin e 'all' sempre entram.
-       Para role='user', verifica permissões por classe do usuário.
+       Para role='user' ou 'viewer', verifica permissões por classe do usuário.
+
+       Se ``allow_view_all`` for ``True``, usuários com perfil ``viewer``
+       podem acessar rotas de leitura de qualquer classe (GET/HEAD/OPTIONS),
+       mantendo as restrições de edição apenas às classes atribuídas.
     """
     classe = (classe or "").strip().upper()
 
@@ -27,6 +31,14 @@ def class_required(classe: str):
         def wrapper(*args, **kwargs):
             role = getattr(current_user, "role", "")
             if role in ("admin", "all"):
+                return fn(*args, **kwargs)
+
+            # Visualizador: pode acessar qualquer classe para rotas de leitura
+            if (
+                role == "viewer"
+                and allow_view_all
+                and request.method in ("GET", "HEAD", "OPTIONS")
+            ):
                 return fn(*args, **kwargs)
 
             # Suporta tanto relacionamento (user.classes -> objetos com .classe)

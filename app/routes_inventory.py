@@ -33,7 +33,7 @@ def normalize_situacao(raw: str | None) -> str:
 # Classe 1 - RAÇÕES 
 
 @bp.get("/cl1", endpoint="cl1_list")
-@class_required("CL1")
+@class_required("CL1", allow_view_all=True)
 def cl1_list():
     rows = CL1.query.order_by(CL1.atualizado_em.desc()).all()
     return render_template("cl1_list.html", rows=rows)
@@ -138,7 +138,7 @@ def cl1_delete(id):
 
 
 @bp.get("/cl1/<int:id>/logs", endpoint="cl1_logs")
-@class_required("CL1")
+@class_required("CL1", allow_view_all=True)
 def cl1_logs(id):
     item = CL1.query.get_or_404(id)
     logs = (
@@ -151,7 +151,7 @@ def cl1_logs(id):
 
 # CL2 =====================================================================================
 @bp.get("/cl2")
-@class_required("CL2")
+@class_required("CL2", allow_view_all=True)
 def cl2_list():
     q = request.args.get("q", "").strip()
     page = request.args.get("page", 1, type=int)
@@ -206,7 +206,7 @@ def cl2_delete(id):
 
 # -------- Impressão PDF CL2 --------
 @bp.get("/cl2/print-pdf", endpoint="cl2_print_pdf")
-@class_required("CL2")
+@class_required("CL2", allow_view_all=True)
 def cl2_print_pdf():
     """Gera PDF com listagem de CL2 (respeita ?q= e ?m=)."""
     q = request.args.get("q", "").strip()
@@ -324,7 +324,7 @@ def cl2_print_pdf():
 
 
 @bp.get("/cl6")
-@class_required("CL6")
+@class_required("CL6", allow_view_all=True)
 def cl6_list():
     q = request.args.get("q", "").strip()
     page = request.args.get("page", 1, type=int)
@@ -398,7 +398,7 @@ def cl6_delete(id):
     return redirect(url_for("inv.cl6_list"))
 
 @bp.get("/cl6/print-pdf", endpoint="cl6_print_pdf")
-@class_required("CL6")
+@class_required("CL6", allow_view_all=True)
 def cl6_print_pdf():
     """Gera PDF com listagem de CL6 (respeita ?q=)."""
     q = request.args.get("q", "").strip()
@@ -534,7 +534,7 @@ def cl6_print_pdf():
 
 # HUB: só mostra dois botões (1º e 2º Pelotão). Não interfere nas outras classes.
 @bp.get("/cl7")
-@class_required("CL7")
+@class_required("CL7", allow_view_all=True)
 def cl7_hub():
     return render_template("cl7_hub.html")  # crie este template com 2 botões
 
@@ -621,7 +621,7 @@ def _update_core(form: CL7Form, it: CL7, pelotao_val: str) -> bool:
 
 # ---------------- 1º PELOTÃO ----------------
 @bp.get("/cl7/p1")
-@class_required("CL7")
+@class_required("CL7", allow_view_all=True)
 def cl7_p1_list():
     items, q, sums = _list_core("1º PELOTAO")
     return render_template(
@@ -667,13 +667,13 @@ def cl7_p1_delete(id):
     return redirect(url_for("inv.cl7_p1_list"))
 
 @bp.get("/cl7/p1/print-pdf")
-@class_required("CL7")
+@class_required("CL7", allow_view_all=True)
 def cl7_p1_print():
     return _cl7_print_pdf_core("1º PELOTAO", "CL7 — 1º Pelotão")
 
 # ---------------- 2º PELOTÃO ----------------
 @bp.get("/cl7/p2")
-@class_required("CL7")
+@class_required("CL7", allow_view_all=True)
 def cl7_p2_list():
     items, q, sums = _list_core("2º PELOTAO")
     return render_template(
@@ -719,7 +719,7 @@ def cl7_p2_delete(id):
     return redirect(url_for("inv.cl7_p2_list"))
 
 @bp.get("/cl7/p2/print-pdf")
-@class_required("CL7")
+@class_required("CL7", allow_view_all=True)
 def cl7_p2_print():
     return _cl7_print_pdf_core("2º PELOTAO", "CL7 — 2º Pelotão")
 
@@ -836,7 +836,7 @@ def _cl7_print_pdf_core(pelotao_val: str, titulo: str):
 # Impressão PDF CL7 (geral, mantém sua rota antiga para não quebrar links existentes)
 # =====================================================================================
 @bp.get("/cl7/print-pdf")
-@class_required("CL7")
+@class_required("CL7", allow_view_all=True)
 def cl7_print_pdf():
     """PDF geral de CL7 (todos os pelotões). Mantida para compatibilidade."""
     q = request.args.get("q", "").strip()
@@ -967,7 +967,7 @@ def _cl9_stats(base_query):
 
 
 @bp.get("/cl9", endpoint="cl9_list")
-@class_required("CL9")
+@class_required("CL9", allow_view_all=True)
 def cl9_list():
     q = request.args.get("q", "").strip()
     page = request.args.get("page", 1, type=int)
@@ -1082,7 +1082,7 @@ def cl9_delete(id):
 
 
 @bp.get("/cl9/<int:id>/logs", endpoint="cl9_logs")
-@class_required("CL9")
+@class_required("CL9", allow_view_all=True)
 def cl9_logs(id):
     item = CL9.query.get_or_404(id)
     logs = (
@@ -1094,7 +1094,7 @@ def cl9_logs(id):
 
 
 @bp.get("/cl9/print-pdf", endpoint="cl9_print_pdf")
-@class_required("CL9")
+@class_required("CL9", allow_view_all=True)
 def cl9_print_pdf():
     q = request.args.get("q", "").strip()
 
