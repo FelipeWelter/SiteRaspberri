@@ -162,18 +162,26 @@ def cl2_list():
     items = query.order_by(CL2.atualizado_em.desc()).paginate(page=page, per_page=10)
     return render_template("cl2_list.html", items=items, q=q)
 
+
+def _calcular_necessidade_cl2(form: CL2Form) -> int:
+    """Calcula a necessidade com base no previsto e disponível."""
+    qtd_prevista = form.qtd_prevista.data or 0
+    qtd_disp = form.qtd_disp.data or 0
+    return max(qtd_prevista - qtd_disp, 0)
+
 @bp.route("/cl2/new", methods=["GET", "POST"])
 @class_required("CL2")
 def cl2_new():
     form = CL2Form()
     if form.validate_on_submit():
+        necessidade_calculada = _calcular_necessidade_cl2(form)
         it = CL2(
             nome=form.nome.data,
             situacao=form.situacao.data or "OK",
             qtd_prevista=form.qtd_prevista.data or 0,
             qtd_disp=form.qtd_disp.data or 0,
             qtd_indisp=form.qtd_indisp.data or 0,
-            necessidade=form.necessidade.data or 0,
+            necessidade=necessidade_calculada,
             qtd_cautelada=form.qtd_cautelada.data or 0,
             observacoes=form.observacoes.data,
         )
@@ -190,6 +198,7 @@ def cl2_edit(id):
     form = CL2Form(obj=it)
     if form.validate_on_submit():
         form.populate_obj(it)
+        it.necessidade = _calcular_necessidade_cl2(form)
         db.session.commit()
         flash("Item CL2 atualizado.", "success")
         return redirect(url_for("inv.cl2_list"))

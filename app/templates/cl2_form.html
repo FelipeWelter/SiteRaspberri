@@ -126,4 +126,31 @@
 
   </div>
 </div>
+<script>
+  (function() {
+    const previstoInput = document.getElementById("qtd_prevista");
+    const disponivelInput = document.getElementById("qtd_disp");
+    const necessidadeInput = document.getElementById("necessidade");
+
+    function calcularNecessidade() {
+      if (!necessidadeInput) return;
+      const previsto = parseInt(previstoInput?.value, 10);
+      const disponivel = parseInt(disponivelInput?.value, 10);
+
+      if (Number.isNaN(previsto) && Number.isNaN(disponivel)) {
+        necessidadeInput.value = "";
+        return;
+      }
+
+      const previstoValor = Number.isNaN(previsto) ? 0 : previsto;
+      const disponivelValor = Number.isNaN(disponivel) ? 0 : disponivel;
+      const necessidade = Math.max(previstoValor - disponivelValor, 0);
+      necessidadeInput.value = necessidade;
+    }
+
+    previstoInput?.addEventListener("input", calcularNecessidade);
+    disponivelInput?.addEventListener("input", calcularNecessidade);
+    calcularNecessidade();
+  })();
+</script>
 {% endblock %}
