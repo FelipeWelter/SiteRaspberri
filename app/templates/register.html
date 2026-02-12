@@ -125,6 +125,11 @@
                   <small class="text-muted tiny">Será usado para entrar no sistema.</small>
                 </div>
                 <div class="col-md-3">
+                  <label class="form-label">E-mail</label>
+                  {{ form.email(class="form-control", placeholder="usuario@gmail.com") }}
+                  <small class="text-muted tiny">Usado para recuperação de senha.</small>
+                </div>
+                <div class="col-md-3">
                   <label class="form-label">Identidade</label>
                   {{ form.identity(class="form-control", placeholder="RG/Identidade (opcional)") }}
                 </div>
