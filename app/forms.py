@@ -4,7 +4,8 @@ from wtforms import (
     StringField, IntegerField, DecimalField, BooleanField, PasswordField,
     TextAreaField, SelectField, SubmitField, SelectMultipleField, widgets, DateField
 )
-from wtforms.validators import DataRequired, NumberRange, Optional, Length, EqualTo
+from wtforms.fields import EmailField
+from wtforms.validators import DataRequired, NumberRange, Optional, Length, EqualTo, Email
 
 SITUACOES = [("OK", "OK"), ("EM_USO", "EM_USO"), ("INOPERANTE", "INOPERANTE")]
 
@@ -119,6 +120,7 @@ class CL9Form(FlaskForm):
 class UserForm(FlaskForm):
     full_name = StringField("Nome completo", validators=[DataRequired(), Length(max=120)])
     username = StringField("Login", validators=[DataRequired(), Length(max=80)])
+    email = EmailField("E-mail", validators=[DataRequired(), Email(), Length(max=255)])
     identity = StringField("Identidade", validators=[Optional(), Length(max=40)])
 
     # admin / all / user / viewer
@@ -152,8 +154,20 @@ class UserPasswordForm(FlaskForm):
 class RegisterForm(FlaskForm):
     full_name = StringField("Nome completo", validators=[DataRequired(), Length(max=120)])
     username = StringField("Login", validators=[DataRequired(), Length(max=80)])
+    email = EmailField("E-mail", validators=[DataRequired(), Email(), Length(max=255)])
     identity = StringField("Identidade", validators=[Optional(), Length(max=80)])
     password = PasswordField("Senha", validators=[DataRequired(), Length(min=4, max=128)])
     confirm  = PasswordField("Confirmar senha", validators=[DataRequired(), EqualTo("password", "Senhas diferentes")])
     accept = BooleanField("Aceito os termos de uso", validators=[DataRequired(message="Confirme os termos para continuar")])
     submit = SubmitField("Criar conta")
+
+
+class ForgotPasswordForm(FlaskForm):
+    email = EmailField("E-mail", validators=[DataRequired(), Email(), Length(max=255)])
+    submit = SubmitField("Enviar link de recuperação")
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField("Nova senha", validators=[DataRequired(), Length(min=4, max=128)])
+    confirm = PasswordField("Confirmar nova senha", validators=[DataRequired(), EqualTo("password", "Senhas diferentes")])
+    submit = SubmitField("Salvar nova senha")

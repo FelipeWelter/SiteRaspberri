@@ -16,7 +16,7 @@
   <body class="bg-light">
 
     <!-- Navbar principal -->
-    {% if request.endpoint != 'auth.login' %}
+    {% if request.endpoint not in ['auth.login', 'auth.register', 'auth.forgot_password', 'auth.reset_password'] %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">4ª Seção</a>

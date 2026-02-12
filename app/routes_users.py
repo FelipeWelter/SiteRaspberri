@@ -40,7 +40,7 @@ def users_list():
     query = User.query
     if q:
         like = f"%{q}%"
-        query = query.filter(or_(User.username.ilike(like), User.full_name.ilike(like), User.role.ilike(like)))
+        query = query.filter(or_(User.username.ilike(like), User.full_name.ilike(like), User.email.ilike(like), User.role.ilike(like)))
     users = query.order_by(User.username.asc()).all()
     return render_template("users_list.html", users=users, q=q)
 
@@ -56,10 +56,15 @@ def users_new():
         u = User(
             full_name=form.full_name.data,
             username=form.username.data,
+            email=form.email.data.lower().strip(),
             identity=form.identity.data,
             role=form.role.data,
             active=getattr(form, "active", None).data if hasattr(form, "active") else True,
         )
+        if User.query.filter_by(email=u.email).first():
+            flash("E-mail já cadastrado.", "warning")
+            return render_template("users_form.html", form=form, mode="new")
+
         if form.password.data:
             u.set_password(form.password.data)
 
@@ -83,6 +88,7 @@ def users_edit(id):
     form = UserForm(
         full_name=u.full_name,
         username=u.username,
+        email=u.email,
         identity=u.identity,
         role=u.role,
         active=u.active,
@@ -98,9 +104,15 @@ def users_edit(id):
             flash("Login já utilizado por outro usuário.", "warning")
             return render_template("users_form.html", form=form, mode="edit", user=u)
 
+        email = form.email.data.lower().strip()
+        if User.query.filter(User.email == email, User.id != u.id).first():
+            flash("E-mail já utilizado por outro usuário.", "warning")
+            return render_template("users_form.html", form=form, mode="edit", user=u)
+
         # Atualiza dados básicos
         u.full_name = form.full_name.data
         u.username  = form.username.data
+        u.email     = email
         u.identity  = form.identity.data
         u.role      = form.role.data
         u.active    = bool(form.active.data)
